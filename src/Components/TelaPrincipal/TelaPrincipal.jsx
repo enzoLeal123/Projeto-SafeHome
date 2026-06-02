@@ -8,16 +8,20 @@ const TelaPrincipal = () => {
   const nomeSalvo = localStorage.getItem('usuario_nome') || 'Usuário';
   const sobrenomeSalvo = localStorage.getItem('usuario_sobrenome') || '';
 
+  
+  const dispararEmergencia = () => {
+    alert(" ALERTA DE EMERGÊNCIA ACIONADO\n\n1. Notificação enviada para seus contatos de confiança cadastrados.\n2. Abrindo o discador para ligar para a Emergência 192/193");
+    
+    window.location.href = 'tel:192';
+  };
 
   const deslogar = () => {
-
     window.location.href = '/';
   };
 
   return (
     <div className="pagina-principal">
       
-   
       <div className="menu-topo">
         <div className="titulo-logo">💙 MindCare</div>
         
@@ -40,6 +44,13 @@ const TelaPrincipal = () => {
           >
             Contatos
           </button>
+          
+          <button 
+            className="btn-emergencia" 
+            onClick={dispararEmergencia}
+          >
+             Emergência
+          </button>
         </div>
 
         <button className="btn-sair" onClick={deslogar}>Sair</button>
@@ -47,15 +58,12 @@ const TelaPrincipal = () => {
 
       <div className="conteudo-principal">
 
-       
         {tela === 'inicio' && (
           <div>
             <div className="cabecalho-boas-vindas">
-            
-              <h2>Bom dia, {nomeSalvo} {sobrenomeSalvo}</h2>
+              <h2>Bem-vindo, {nomeSalvo} {sobrenomeSalvo}</h2>
             </div>
 
-            
             <div className="caixa-agenda">
               <h3>Agenda de Hoje</h3>
               <hr />
@@ -73,9 +81,7 @@ const TelaPrincipal = () => {
               </div>
             </div>
           </div>
-          
         )}
-
 
         {tela === 'sinais' && (
           <div className="tela-vazia">
@@ -83,7 +89,6 @@ const TelaPrincipal = () => {
             <p> em desenvolvimento </p>
           </div>
         )}
-
 
         {tela === 'contatos' && (
           <div className="tela-vazia">
