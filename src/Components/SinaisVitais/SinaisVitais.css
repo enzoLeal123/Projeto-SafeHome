@@ -1,0 +1,81 @@
+
+.cards-container {
+  display: flex;
+  gap: 20px;
+  max-width: 800px;
+  margin: 25px auto 35px auto;
+}
+
+.card-sinal {
+  flex: 1;
+  background-color: white;
+  border-radius: 12px;
+  padding: 25px 20px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.icone-sinal {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.card-sinal h3 {
+  font-size: 16px;
+  color: #7f8c8d;
+  margin: 0 0 10px 0;
+}
+
+.valor-sinal {
+  font-size: 26px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 15px 0;
+}
+
+.valor-sinal span {
+  font-size: 14px;
+  color: #95a5a6;
+  font-weight: 400;
+}
+
+
+.titulo-destacado {
+  color: #1a252f !important; 
+  font-size: 34px !important;  
+  font-weight: 800 !important; 
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.subtitulo-destacado {
+  color: #566573 !important; 
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.status-sinal {
+  display: inline-block;
+  padding: 5px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.status-sinal.bom {
+  background-color: #e8f8f5;
+  color: #2ecc71;
+}
+
+.status-sinal.alerta {
+  background-color: #fef9e7;
+  color: #f1c40f;
+}
+
+.status-sinal.perigo {
+  background-color: #fce4e4;
+  color: #e74c3c;
+}
