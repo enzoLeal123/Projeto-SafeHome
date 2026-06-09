@@ -9,7 +9,6 @@ body {
   width: 100%;
 }
 
-
 .menu-topo {
   background-color: #2b5c8f; 
   color: white;
@@ -28,7 +27,6 @@ body {
   align-items: center;
   gap: 8px;
 }
-
 
 .botoes-menu {
   display: flex;
@@ -60,7 +58,6 @@ body {
   border-bottom: 3px solid #ffffff; 
 }
 
-
 .botoes-menu .btn-emergencia {
   background-color: #e74c3c; 
   color: white !important;
@@ -79,7 +76,6 @@ body {
   background-color: #c0392b; 
 }
 
-
 .btn-sair {
   background-color: transparent;
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -97,7 +93,6 @@ body {
   border-color: white;
 }
 
-
 .conteudo-principal {
   width: 100%;
   margin: 40px auto;
@@ -113,7 +108,6 @@ body {
   margin-bottom: 25px;
   text-align: left; 
 }
-
 
 .caixa-agenda {
   max-width: 800px;
@@ -136,7 +130,7 @@ body {
 .caixa-agenda hr {
   border: 0;
   border-top: 1px solid #eaeded;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .item-agenda {
@@ -159,7 +153,6 @@ body {
   cursor: pointer;
 }
 
-
 .tela-vazia {
   max-width: 800px;
   margin: 0 auto;
@@ -170,4 +163,118 @@ body {
   text-align: center;
   color: #7f8c8d;
   box-sizing: border-box;
+}
+
+
+.abas-semana {
+  display: flex;
+  gap: 10px;
+  max-width: 800px;
+  margin: 0 auto 20px auto;
+}
+
+.abas-semana button {
+  flex: 1;
+  padding: 12px 10px;
+  background-color: #e0e6ed;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #566573;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.abas-semana button:hover {
+  background-color: #d1dbe5;
+}
+
+.abas-semana button.aba-ativa {
+  background-color: #2b5c8f; 
+  color: white;
+}
+
+
+.form-adicionar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+
+.form-adicionar input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #dcdde1;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-adicionar input:focus {
+  border-color: #2b5c8f;
+}
+
+
+.form-adicionar button {
+  background-color: #2b5c8f;
+  color: white;
+  border: none;
+  padding: 0 25px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.form-adicionar button:hover {
+  background-color: #1e4369;
+}
+
+.item-agenda {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+}
+
+.item-conteudo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tag-dia {
+  font-size: 11px;
+  background-color: #f1f2f6;
+  color: #718093;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.btn-deletar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.btn-deletar:hover {
+  background-color: #ffeaea;
+}
+
+.abas-semana {
+  display: flex;
+  gap: 10px;
+  max-width: 800px;
+  margin: 0 auto 20px auto;
+  overflow-x: auto;
+  padding-bottom: 5px; 
 }
