@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './TelaPrincipal.css';
 import SinaisVitais from '../SinaisVitais/SinaisVitais.jsx';
+import Contatos from '../TelaContato/Contatos'; 
 
 const TelaPrincipal = () => {
 
@@ -133,14 +134,12 @@ const TelaPrincipal = () => {
         )}
 
         {tela === 'sinais' && (
-  <SinaisVitais />
-)}
+          <SinaisVitais />
+        )}
 
+        
         {tela === 'contatos' && (
-          <div className="tela-vazia">
-            <h2>Contatos de Apoio</h2>
-            <p> em desenvolvimento </p>
-          </div>
+          <Contatos />
         )}
 
       </div>

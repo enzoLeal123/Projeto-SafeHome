@@ -1,0 +1,130 @@
+
+.contatos-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: #F8FAFC;
+  min-height: 80vh;
+}
+
+.contatos-card {
+  background-color: #FFFFFF;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 800px;
+}
+
+.contatos-titulo {
+  color: #2C3E50;
+  text-align: center;
+  margin-bottom: 8px;
+  font-size: 24px;
+}
+
+.contatos-subtitulo {
+  color: #7F8C8D;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 14px;
+}
+
+.contatos-erro {
+  background-color: #FDECEA;
+  color: #E74C3C;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.contatos-form {
+  margin-bottom: 30px;
+}
+
+.contatos-input-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.contatos-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #E0E6ED;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+.contatos-botao {
+  background-color: #3B82F6;
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.contatos-botao:hover {
+  background-color: #2563EB;
+}
+
+.contatos-linha-divisoria {
+  border: none;
+  border-top: 1px solid #E0E6ED;
+  margin-bottom: 20px;
+}
+
+.contatos-lista-container {
+  margin-top: 20px;
+}
+
+.contatos-texto-vazio {
+  text-align: center;
+  color: #95A5A6;
+  font-style: italic;
+}
+
+.contatos-lista {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.contatos-item-lista {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #F1F5F8;
+}
+
+.contatos-info-principal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.contatos-nome-contato {
+  color: #34495E;
+  font-size: 16px;
+}
+
+.contatos-badge {
+  background-color: #E1F0FF;
+  color: #3B82F6;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.contatos-telefone-contato {
+  color: #7F8C8D;
+  font-weight: 500;
+}
