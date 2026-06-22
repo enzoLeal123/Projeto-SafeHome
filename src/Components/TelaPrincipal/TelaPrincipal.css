@@ -278,3 +278,58 @@ body {
   overflow-x: auto;
   padding-bottom: 5px; 
 }
+
+.cabecalho-boas-vindas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+
+.btn-historico {
+  padding: 8px 16px;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-historico:hover {
+  opacity: 0.9;
+}
+
+
+.btn-historico.ativo {
+  background-color: #95A5A6;
+}
+
+
+.msg-modo-leitura {
+  color: #7F8C8D;
+  font-style: italic;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.msg-lista-vazia {
+  text-align: center;
+  color: #95A5A6;
+  margin-top: 20px;
+}
+
+
+.tarefa-texto {
+  color: #000;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+
+.tarefa-texto.historico {
+  text-decoration: line-through;
+  color: #7F8C8D;
+}

@@ -9,21 +9,32 @@ const Contatos = () => {
   const [mensagemErro, setMensagemErro] = useState('');
 
   useEffect(() => {
+    const contatosFicticios = [
+      { id: 'ficticio-1', nome: 'Natália', telefone: '(32) 98888-8888', parentesco: 'Tia' },
+      { id: 'ficticio-2', nome: 'João', telefone: '(32) 97777-7777', parentesco: 'Primo' }
+    ];
+
     const buscarContatos = async () => {
       try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
 
-        setListaContatos([
-          { id: 2, nome: 'Natália', telefone: '(32) 98888-8888', parentesco: 'Tia' },
-          { id: 3, nome: 'João', telefone: '(32) 97777-7777', parentesco: 'Primo' }
-        ]);
+        if (data.length === 0) {
+          setListaContatos(contatosFicticios);
+        } else {
+          setListaContatos(data);
+        }
+
       } catch (error) {
         console.error("Erro ao conectar com a API:", error);
-        setMensagemErro("Não foi possível carregar os contatos.");
+        setListaContatos(contatosFicticios);
+        exibirErroTemporario("Aviso: Conexão com o banco falhou. Mostrando dados de demonstração.");
       }
     };
 
     buscarContatos();
   }, []);
+
 
   const handleAdicionarContato = async (e) => {
     e.preventDefault();
@@ -37,25 +48,26 @@ const Contatos = () => {
     const novoContato = { nome, telefone, parentesco };
 
     try {
-      
-      const response = await fetch('http://localhost:3000/api/contatos', {
+      const response = await fetch('http://localhost:3000/v1/contatos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(novoContato)
       });
+
+      if (!response.ok) {
+        throw new Error('Falha ao salvar no servidor');
+      }
+
       const contatoSalvoDoBanco = await response.json();
+     
       setListaContatos([...listaContatos, contatoSalvoDoBanco]);
-      
-
-      const contatoSimulado = { ...novoContato, id: Date.now() };
-      setListaContatos([...listaContatos, contatoSimulado]);
-
       setNome('');
       setTelefone('');
       setParentesco('');
+
     } catch (error) {
       console.error("Erro ao salvar contato:", error);
-      setMensagemErro("Erro ao salvar o contato no banco de dados.");
+      setMensagemErro("Erro crítico: Não foi possível salvar o contato no banco de dados.");
     }
   };
 

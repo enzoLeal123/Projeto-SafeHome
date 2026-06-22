@@ -1,31 +1,41 @@
 import React, { useState } from 'react';
 import './TelaPrincipal.css';
 import SinaisVitais from '../SinaisVitais/SinaisVitais.jsx';
-import Contatos from '../TelaContato/Contatos'; 
+import Contatos from '../TelaContato/Contatos';
 
 const TelaPrincipal = () => {
 
   const [tela, setTela] = useState('inicio');
-  const gerarDiasDoCalendario = () => {
-    
+  const [isHistorico, setIsHistorico] = useState(false);
+
+  const gerarDiasDoCalendario = (modoHistorico) => {
     const dias = [];
-    for (let i = 0; i < 5; i++) {
+    const inicio = modoHistorico ? -5 : 0;
+    const fim = modoHistorico ? 0 : 5;
+
+    for (let i = inicio; i < fim; i++) {
       const data = new Date();
       data.setDate(data.getDate() + i);
-      
       const numeroDia = String(data.getDate()).padStart(2, '0');
       dias.push(numeroDia);
     }
     return dias;
   };
 
-  const meusDias = gerarDiasDoCalendario();
-  const [diaAtivo, setDiaAtivo] = useState(meusDias[0]); 
+  const meusDias = gerarDiasDoCalendario(isHistorico);
+  const [diaAtivo, setDiaAtivo] = useState(gerarDiasDoCalendario(false)[0]); 
+  
   const [novoTexto, setNovoTexto] = useState('');       
   const [listaTarefas, setListaTarefas] = useState([]); 
 
   const nomeSalvo = localStorage.getItem('usuario_nome') || 'Usuário';
   const sobrenomeSalvo = localStorage.getItem('usuario_sobrenome') || '';
+
+  const alternarModoAgenda = () => {
+    const novoModo = !isHistorico;
+    setIsHistorico(novoModo);
+    setDiaAtivo(gerarDiasDoCalendario(novoModo)[0]);
+  };
 
   const adicionarNovaTarefa = (evento) => {
     evento.preventDefault(); 
@@ -75,6 +85,13 @@ const TelaPrincipal = () => {
           <div>
             <div className="cabecalho-boas-vindas">
               <h2>Bem-vindo, {nomeSalvo} {sobrenomeSalvo}</h2>
+              
+              <button 
+                onClick={alternarModoAgenda}
+                className={`btn-historico ${isHistorico ? 'ativo' : ''}`}
+              >
+                {isHistorico ? '📅 Voltar para Hoje' : '🕒 Ver Histórico'}
+              </button>
             </div>
 
             <div className="abas-semana">
@@ -90,19 +107,25 @@ const TelaPrincipal = () => {
             </div>
 
             <div className="caixa-agenda">
-              <h3>Agenda do Dia {diaAtivo}</h3>
+              <h3>{isHistorico ? `Histórico do Dia ${diaAtivo}` : `Agenda do Dia ${diaAtivo}`}</h3>
               <hr />
               
-              <form onSubmit={adicionarNovaTarefa} className="form-adicionar">
-                <input 
-                  type="text" 
-                  placeholder="Ex: Tomar medicação (08:00)" 
-                  value={novoTexto}
-                  onChange={(e) => setNovoTexto(e.target.value)}
-                  required
-                />
-                <button type="submit">Adicionar</button>
-              </form>
+              {!isHistorico ? (
+                <form onSubmit={adicionarNovaTarefa} className="form-adicionar">
+                  <input 
+                    type="text" 
+                    placeholder="Ex: Tomar medicação (08:00)" 
+                    value={novoTexto}
+                    onChange={(e) => setNovoTexto(e.target.value)}
+                    required
+                  />
+                  <button type="submit">Adicionar</button>
+                </form>
+              ) : (
+                <p className="msg-modo-leitura">
+                  Modo leitura: Não é possível adicionar novas tarefas em dias passados.
+                </p>
+              )}
 
               <div className="lista-itens-agenda">
                 {listaTarefas.map((tarefa, index) => {
@@ -110,23 +133,33 @@ const TelaPrincipal = () => {
                     return (
                       <div key={index} className="item-agenda">
                         <div className="item-conteudo">
-                          <input type="checkbox" />
-                          <span>{tarefa.texto}</span>
+                          <input type="checkbox" defaultChecked={isHistorico} disabled={isHistorico} />
+                          <span className={`tarefa-texto ${isHistorico ? 'historico' : ''}`}>
+                            {tarefa.texto}
+                          </span>
                           <span className="tag-dia">Dia {tarefa.dia}</span>
                         </div>
                         
-                        <button 
-                          className="btn-deletar" 
-                          type="button" 
-                          onClick={() => removerTarefa(index)}
-                        >
-                          🗑️
-                        </button>
+                        {!isHistorico && (
+                          <button 
+                            className="btn-deletar" 
+                            type="button" 
+                            onClick={() => removerTarefa(index)}
+                          >
+                            🗑️
+                          </button>
+                        )}
                       </div>
                     );
                   }
                   return null;
                 })}
+                
+                {listaTarefas.filter(t => t.dia === diaAtivo).length === 0 && (
+                  <p className="msg-lista-vazia">
+                    Nenhum registro encontrado para este dia.
+                  </p>
+                )}
               </div>
 
             </div>
@@ -137,7 +170,6 @@ const TelaPrincipal = () => {
           <SinaisVitais />
         )}
 
-        
         {tela === 'contatos' && (
           <Contatos />
         )}
