@@ -1,83 +1,79 @@
-import React, { useState, useEffect } from 'react';
-import './Contatos.css'; 
+import React, { useState, useEffect } from "react";
+import "./Contatos.css";
 
 const Contatos = () => {
-  const [listaContatos, setListaContatos] = useState([]);
-  const [nome, setNome] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [parentesco, setParentesco] = useState('');
-  const [mensagemErro, setMensagemErro] = useState('');
+  const [listaContatos, setListaContatos] = useState(() => {
+    const contatosSalvos = localStorage.getItem("contatos");
 
-  useEffect(() => {
-    const contatosFicticios = [
-      { id: 'ficticio-1', nome: 'Natália', telefone: '(32) 98888-8888', parentesco: 'Tia' },
-      { id: 'ficticio-2', nome: 'João', telefone: '(32) 97777-7777', parentesco: 'Primo' }
+    if (contatosSalvos) {
+      return JSON.parse(contatosSalvos);
+    }
+
+    return [
+      {
+        id: "ficticio-1",
+        nome: "Natália",
+        telefone: "(32) 98888-8888",
+        parentesco: "Tia",
+      },
+      {
+        id: "ficticio-2",
+        nome: "João",
+        telefone: "(32) 97777-7777",
+        parentesco: "Primo",
+      },
     ];
+  });
 
-    const buscarContatos = async () => {
-      try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [parentesco, setParentesco] = useState("");
+  const [mensagemErro, setMensagemErro] = useState("");
 
-        if (data.length === 0) {
-          setListaContatos(contatosFicticios);
-        } else {
-          setListaContatos(data);
-        }
+  // Salva automaticamente no navegador
+  useEffect(() => {
+    localStorage.setItem("contatos", JSON.stringify(listaContatos));
+  }, [listaContatos]);
 
-      } catch (error) {
-        console.error("Erro ao conectar com a API:", error);
-        setListaContatos(contatosFicticios);
-        exibirErroTemporario("Aviso: Conexão com o banco falhou. Mostrando dados de demonstração.");
-      }
-    };
-
-    buscarContatos();
-  }, []);
-
-
-  const handleAdicionarContato = async (e) => {
+  const handleAdicionarContato = (e) => {
     e.preventDefault();
-    setMensagemErro('');
+    setMensagemErro("");
 
     if (!nome || !telefone) {
-      setMensagemErro("Por favor, preencha pelo menos o Nome e o Telefone.");
+      setMensagemErro(
+        "Por favor, preencha pelo menos o Nome e o Telefone."
+      );
       return;
     }
 
-    const novoContato = { nome, telefone, parentesco };
+    const novoContato = {
+      id: Date.now(),
+      nome,
+      telefone,
+      parentesco,
+    };
 
-    try {
-      const response = await fetch('http://localhost:3000/v1/contatos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(novoContato)
-      });
+    setListaContatos((contatosAtuais) => [
+      ...contatosAtuais,
+      novoContato,
+    ]);
 
-      if (!response.ok) {
-        throw new Error('Falha ao salvar no servidor');
-      }
-
-      const contatoSalvoDoBanco = await response.json();
-     
-      setListaContatos([...listaContatos, contatoSalvoDoBanco]);
-      setNome('');
-      setTelefone('');
-      setParentesco('');
-
-    } catch (error) {
-      console.error("Erro ao salvar contato:", error);
-      setMensagemErro("Erro crítico: Não foi possível salvar o contato no banco de dados.");
-    }
+    setNome("");
+    setTelefone("");
+    setParentesco("");
   };
 
   return (
     <div className="contatos-container">
       <div className="contatos-card">
         <h2 className="contatos-titulo">Contatos de Apoio</h2>
-        <p className="contatos-subtitulo">Cadastre pessoas de confiança para emergências</p>
+        <p className="contatos-subtitulo">
+          Cadastre pessoas de confiança para emergências
+        </p>
 
-        {mensagemErro && <div className="contatos-erro">{mensagemErro}</div>}
+        {mensagemErro && (
+          <div className="contatos-erro">{mensagemErro}</div>
+        )}
 
         <form onSubmit={handleAdicionarContato} className="contatos-form">
           <div className="contatos-input-group">
@@ -88,6 +84,7 @@ const Contatos = () => {
               onChange={(e) => setNome(e.target.value)}
               className="contatos-input"
             />
+
             <input
               type="text"
               placeholder="Telefone"
@@ -95,6 +92,7 @@ const Contatos = () => {
               onChange={(e) => setTelefone(e.target.value)}
               className="contatos-input"
             />
+
             <input
               type="text"
               placeholder="Parentesco"
@@ -102,7 +100,10 @@ const Contatos = () => {
               onChange={(e) => setParentesco(e.target.value)}
               className="contatos-input"
             />
-            <button type="submit" className="contatos-botao">Adicionar</button>
+
+            <button type="submit" className="contatos-botao">
+              Adicionar
+            </button>
           </div>
         </form>
 
@@ -110,18 +111,28 @@ const Contatos = () => {
 
         <div className="contatos-lista-container">
           {listaContatos.length === 0 ? (
-            <p className="contatos-texto-vazio">Nenhum contato cadastrado ainda.</p>
+            <p className="contatos-texto-vazio">
+              Nenhum contato cadastrado ainda.
+            </p>
           ) : (
             <ul className="contatos-lista">
               {listaContatos.map((contato) => (
                 <li key={contato.id} className="contatos-item-lista">
                   <div className="contatos-info-principal">
-                    <strong className="contatos-nome-contato">{contato.nome}</strong>
+                    <strong className="contatos-nome-contato">
+                      {contato.nome}
+                    </strong>
+
                     {contato.parentesco && (
-                      <span className="contatos-badge">{contato.parentesco}</span>
+                      <span className="contatos-badge">
+                        {contato.parentesco}
+                      </span>
                     )}
                   </div>
-                  <span className="contatos-telefone-contato">{contato.telefone}</span>
+
+                  <span className="contatos-telefone-contato">
+                    {contato.telefone}
+                  </span>
                 </li>
               ))}
             </ul>
