@@ -352,3 +352,100 @@ body {
   font-style: italic;
   margin-bottom: 16px;
 }
+
+/* ── Botão editar ────────────────────────────────────────── */
+.item-acoes {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.btn-editar {
+  background: none;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  opacity: 0.5;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.btn-editar:hover {
+  opacity: 1;
+  background: var(--purple-soft);
+}
+
+/* ── Item no modo edição ─────────────────────────────────── */
+.item-editando {
+  border-color: var(--purple-light) !important;
+  background: #faf8ff !important;
+  box-shadow: 0 0 0 3px rgba(124,92,191,0.10) !important;
+  flex-direction: column;
+  align-items: stretch !important;
+}
+
+.edicao-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.input-edicao {
+  width: 100%;
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--purple-light);
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
+  background: #fff;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.input-edicao:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(124,92,191,0.10);
+}
+
+.edicao-acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-salvar-edicao {
+  padding: 7px 18px;
+  background: var(--purple);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.18s;
+}
+
+.btn-salvar-edicao:hover {
+  opacity: 0.88;
+}
+
+.btn-cancelar-edicao {
+  padding: 7px 18px;
+  background: transparent;
+  color: var(--text-mid);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+}
+
+.btn-cancelar-edicao:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}

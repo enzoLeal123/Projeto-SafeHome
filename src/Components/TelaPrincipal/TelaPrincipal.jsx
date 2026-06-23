@@ -23,10 +23,14 @@ const TelaPrincipal = () => {
   };
 
   const meusDias = gerarDiasDoCalendario(isHistorico);
-  const [diaAtivo, setDiaAtivo] = useState(gerarDiasDoCalendario(false)[0]); 
-  
-  const [novoTexto, setNovoTexto] = useState('');       
-  const [listaTarefas, setListaTarefas] = useState([]); 
+  const [diaAtivo, setDiaAtivo] = useState(gerarDiasDoCalendario(false)[0]);
+
+  const [novoTexto, setNovoTexto] = useState('');
+  const [listaTarefas, setListaTarefas] = useState([]);
+
+  // Estado de edição: qual índice está sendo editado e o texto temporário
+  const [editandoIndex, setEditandoIndex] = useState(null);
+  const [textoEditando, setTextoEditando] = useState('');
 
   const nomeSalvo = localStorage.getItem('usuario_nome') || 'Usuário';
   const sobrenomeSalvo = localStorage.getItem('usuario_sobrenome') || '';
@@ -38,13 +42,8 @@ const TelaPrincipal = () => {
   };
 
   const adicionarNovaTarefa = (evento) => {
-    evento.preventDefault(); 
-
-    const tarefa = {
-      texto: novoTexto,
-      dia: diaAtivo
-    };
-
+    evento.preventDefault();
+    const tarefa = { texto: novoTexto, dia: diaAtivo };
     setListaTarefas([...listaTarefas, tarefa]);
     setNovoTexto('');
   };
@@ -52,10 +51,31 @@ const TelaPrincipal = () => {
   const removerTarefa = (posicaoParaRemover) => {
     const listaAtualizada = listaTarefas.filter((_, index) => index !== posicaoParaRemover);
     setListaTarefas(listaAtualizada);
+    if (editandoIndex === posicaoParaRemover) setEditandoIndex(null);
+  };
+
+  const iniciarEdicao = (index, textoAtual) => {
+    setEditandoIndex(index);
+    setTextoEditando(textoAtual);
+  };
+
+  const salvarEdicao = (index) => {
+    if (!textoEditando.trim()) return;
+    const listaAtualizada = listaTarefas.map((tarefa, i) =>
+      i === index ? { ...tarefa, texto: textoEditando.trim() } : tarefa
+    );
+    setListaTarefas(listaAtualizada);
+    setEditandoIndex(null);
+    setTextoEditando('');
+  };
+
+  const cancelarEdicao = () => {
+    setEditandoIndex(null);
+    setTextoEditando('');
   };
 
   const dispararEmergencia = () => {
-    alert(" ALERTA DE EMERGÊNCIA ACIONADO\n\n1. Notificação enviada para seus contatos de confiança cadastrados.\n2. Abrindo o discador para ligar para a Emergência 192/193");
+    alert("ALERTA DE EMERGÊNCIA ACIONADO\n\n1. Notificação enviada para seus contatos de confiança cadastrados.\n2. Abrindo o discador para ligar para a Emergência 192/193");
     window.location.href = 'tel:192';
   };
 
@@ -65,10 +85,10 @@ const TelaPrincipal = () => {
 
   return (
     <div className="pagina-principal">
-      
+
       <div className="menu-topo">
         <div className="titulo-logo">💙 MindCare</div>
-        
+
         <div className="botoes-menu">
           <button className={tela === 'inicio' ? 'active' : ''} onClick={() => setTela('inicio')}>Início</button>
           <button className={tela === 'sinais' ? 'active' : ''} onClick={() => setTela('sinais')}>Sinais Vitais</button>
@@ -85,8 +105,8 @@ const TelaPrincipal = () => {
           <div>
             <div className="cabecalho-boas-vindas">
               <h2>Bem-vindo, {nomeSalvo} {sobrenomeSalvo}</h2>
-              
-              <button 
+
+              <button
                 onClick={alternarModoAgenda}
                 className={`btn-historico ${isHistorico ? 'ativo' : ''}`}
               >
@@ -96,9 +116,9 @@ const TelaPrincipal = () => {
 
             <div className="abas-semana">
               {meusDias.map((dia) => (
-                <button 
+                <button
                   key={dia}
-                  className={diaAtivo === dia ? 'aba-ativa' : ''} 
+                  className={diaAtivo === dia ? 'aba-ativa' : ''}
                   onClick={() => setDiaAtivo(dia)}
                 >
                   Dia {dia}
@@ -109,12 +129,12 @@ const TelaPrincipal = () => {
             <div className="caixa-agenda">
               <h3>{isHistorico ? `Histórico do Dia ${diaAtivo}` : `Agenda do Dia ${diaAtivo}`}</h3>
               <hr />
-              
+
               {!isHistorico ? (
                 <form onSubmit={adicionarNovaTarefa} className="form-adicionar">
-                  <input 
-                    type="text" 
-                    placeholder="Ex: Tomar medicação (08:00)" 
+                  <input
+                    type="text"
+                    placeholder="Ex: Tomar medicação (08:00)"
                     value={novoTexto}
                     onChange={(e) => setNovoTexto(e.target.value)}
                     required
@@ -129,32 +149,81 @@ const TelaPrincipal = () => {
 
               <div className="lista-itens-agenda">
                 {listaTarefas.map((tarefa, index) => {
-                  if (tarefa.dia === diaAtivo) {
-                    return (
-                      <div key={index} className="item-agenda">
-                        <div className="item-conteudo">
-                          <input type="checkbox" defaultChecked={isHistorico} disabled={isHistorico} />
-                          <span className={`tarefa-texto ${isHistorico ? 'historico' : ''}`}>
-                            {tarefa.texto}
-                          </span>
-                          <span className="tag-dia">Dia {tarefa.dia}</span>
+                  if (tarefa.dia !== diaAtivo) return null;
+
+                  const estaEditando = editandoIndex === index;
+
+                  return (
+                    <div key={index} className={`item-agenda ${estaEditando ? 'item-editando' : ''}`}>
+
+                      {estaEditando ? (
+                        /* ── Modo edição ── */
+                        <div className="edicao-inline">
+                          <input
+                            className="input-edicao"
+                            type="text"
+                            value={textoEditando}
+                            onChange={(e) => setTextoEditando(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') salvarEdicao(index);
+                              if (e.key === 'Escape') cancelarEdicao();
+                            }}
+                            autoFocus
+                          />
+                          <div className="edicao-acoes">
+                            <button
+                              className="btn-salvar-edicao"
+                              type="button"
+                              onClick={() => salvarEdicao(index)}
+                            >
+                              ✓ Salvar
+                            </button>
+                            <button
+                              className="btn-cancelar-edicao"
+                              type="button"
+                              onClick={cancelarEdicao}
+                            >
+                              ✕ Cancelar
+                            </button>
+                          </div>
                         </div>
-                        
-                        {!isHistorico && (
-                          <button 
-                            className="btn-deletar" 
-                            type="button" 
-                            onClick={() => removerTarefa(index)}
-                          >
-                            🗑️
-                          </button>
-                        )}
-                      </div>
-                    );
-                  }
-                  return null;
+                      ) : (
+                        /* ── Modo normal ── */
+                        <>
+                          <div className="item-conteudo">
+                            <input type="checkbox" defaultChecked={isHistorico} disabled={isHistorico} />
+                            <span className={`tarefa-texto ${isHistorico ? 'historico' : ''}`}>
+                              {tarefa.texto}
+                            </span>
+                            <span className="tag-dia">Dia {tarefa.dia}</span>
+                          </div>
+
+                          {!isHistorico && (
+                            <div className="item-acoes">
+                              <button
+                                className="btn-editar"
+                                type="button"
+                                onClick={() => iniciarEdicao(index, tarefa.texto)}
+                                title="Editar tarefa"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                className="btn-deletar"
+                                type="button"
+                                onClick={() => removerTarefa(index)}
+                                title="Excluir tarefa"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
                 })}
-                
+
                 {listaTarefas.filter(t => t.dia === diaAtivo).length === 0 && (
                   <p className="msg-lista-vazia">
                     Nenhum registro encontrado para este dia.
@@ -166,13 +235,8 @@ const TelaPrincipal = () => {
           </div>
         )}
 
-        {tela === 'sinais' && (
-          <SinaisVitais />
-        )}
-
-        {tela === 'contatos' && (
-          <Contatos />
-        )}
+        {tela === 'sinais' && <SinaisVitais />}
+        {tela === 'contatos' && <Contatos />}
 
       </div>
     </div>
