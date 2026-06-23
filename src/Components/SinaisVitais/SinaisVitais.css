@@ -1,19 +1,44 @@
+/* SinaisVitais.css — tema lilás/roxo suave */
 
+.painel-sinais {
+  width: 100%;
+}
+
+.titulo-destacado {
+  font-size: 24px;
+  font-weight: 800;
+  color: #2e2640;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.subtitulo-destacado {
+  font-size: 14px;
+  color: #a89dc0;
+  margin-bottom: 28px;
+}
+
+/* ── Cards de status ─────────────────────────────────────── */
 .cards-container {
-  display: flex;
-  gap: 20px;
-  max-width: 800px;
-  margin: 25px auto 35px auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
 .card-sinal {
-  flex: 1;
-  background-color: white;
-  border-radius: 12px;
-  padding: 25px 20px;
+  background: #ffffff;
+  border: 1.5px solid #ddd8f0;
+  border-radius: 16px;
+  padding: 24px 20px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 16px rgba(124,92,191,0.08);
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+
+.card-sinal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(124,92,191,0.13);
 }
 
 .icone-sinal {
@@ -22,71 +47,122 @@
 }
 
 .card-sinal h3 {
-  font-size: 16px;
-  color: #7f8c8d;
-  margin: 0 0 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b5f87;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .valor-sinal {
-  font-size: 26px;
-  font-weight: 700;
-  color: #2c3e50;
-  margin: 0 0 15px 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #2e2640;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
 }
 
 .valor-sinal span {
   font-size: 14px;
-  color: #95a5a6;
-  font-weight: 400;
-}
-
-
-.titulo-destacado {
-  color: #1a252f !important; 
-  font-size: 34px !important;  
-  font-weight: 800 !important; 
-  margin-bottom: 8px;
-  text-align: left;
-}
-
-.subtitulo-destacado {
-  color: #566573 !important; 
-  font-size: 16px;
   font-weight: 500;
-  margin-bottom: 25px;
-  text-align: left;
+  color: #a89dc0;
 }
 
+/* ── Badges de status ────────────────────────────────────── */
 .status-sinal {
   display: inline-block;
-  padding: 5px 16px;
+  padding: 4px 14px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
 .status-sinal.bom {
-  background-color: #e8f8f5;
-  color: #2ecc71;
+  background: #e6f9f0;
+  color: #2e8b5c;
 }
 
 .status-sinal.alerta {
-  background-color: #fef9e7;
-  color: #f1c40f;
+  background: #fff8e1;
+  color: #b08000;
 }
 
 .status-sinal.perigo {
-  background-color: #fce4e4;
-  color: #e74c3c;
+  background: #fdeaea;
+  color: #c0392b;
 }
 
-/* ── Adicione estas classes ao seu SinaisVitais.css existente ── */
-
-/* Container do gráfico */
-.grafico-container {
-  padding: 20px 24px 24px;
+/* ── Caixa de formulário / gráfico ──────────────────────── */
+.caixa-agenda {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 16px rgba(124,92,191,0.08);
+  border: 1.5px solid #ddd8f0;
 }
 
+.caixa-agenda h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2e2640;
+  margin-bottom: 14px;
+}
+
+.caixa-agenda hr {
+  border: none;
+  border-top: 1.5px solid #ddd8f0;
+  margin-bottom: 18px;
+}
+
+/* ── Form de medições ────────────────────────────────────── */
+.form-adicionar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.form-adicionar input,
+.form-adicionar select {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #ddd8f0;
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  color: #2e2640;
+  background: #f5f3fb;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.form-adicionar input:focus,
+.form-adicionar select:focus {
+  border-color: #a687d8;
+  background: #fff;
+}
+
+.form-adicionar button {
+  padding: 10px 24px;
+  background: #7c5cbf;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.18s;
+  white-space: nowrap;
+}
+
+.form-adicionar button:hover {
+  opacity: 0.88;
+}
+
+/* ── Abas do gráfico ─────────────────────────────────────── */
 .grafico-cabecalho {
   display: flex;
   align-items: center;
@@ -95,11 +171,8 @@
   gap: 10px;
 }
 
-.grafico-cabecalho h3 {
-  margin: 0;
-}
+.grafico-cabecalho h3 { margin: 0; }
 
-/* Abas BPM / Sono / Estresse */
 .grafico-abas {
   display: flex;
   gap: 8px;
@@ -108,55 +181,57 @@
 .aba-grafico {
   padding: 5px 14px;
   border-radius: 20px;
-  border: 1.5px solid #d0d0e0;
+  border: 1.5px solid #ddd8f0;
   background: transparent;
-  color: #666;
+  color: #6b5f87;
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
   font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.18s;
 }
 
 .aba-grafico:hover {
-  border-color: #7b6cf6;
-  color: #7b6cf6;
+  border-color: #a687d8;
+  color: #7c5cbf;
 }
 
 .aba-grafico.ativa {
-  background: #7b6cf6;
-  border-color: #7b6cf6;
+  background: #7c5cbf;
+  border-color: #7c5cbf;
   color: #fff;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-/* Legenda acima do gráfico */
 .grafico-legenda-label {
   font-size: 12px;
-  color: #999;
+  color: #a89dc0;
   margin: 8px 0 4px;
 }
 
-/* Tooltip customizado */
+/* ── Tooltip ─────────────────────────────────────────────── */
 .tooltip-customizado {
   background: #fff;
-  border: 1px solid #e0e0ec;
+  border: 1px solid #ddd8f0;
   border-radius: 10px;
   padding: 10px 14px;
   font-size: 13px;
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .tooltip-label {
   font-weight: 700;
   margin-bottom: 4px;
-  color: #444;
+  color: #2e2640;
 }
 
-/* Mensagem de sucesso ao salvar */
+/* ── Feedback de salvo ───────────────────────────────────── */
 .msg-sucesso {
   margin-top: 12px;
-  color: #3aaa6e;
+  color: #2e8b5c;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   animation: fadeIn 0.3s ease;
 }
 

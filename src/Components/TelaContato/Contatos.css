@@ -1,47 +1,48 @@
+/* Contatos.css — tema lilás/roxo suave */
 
 .contatos-container {
-  display: flex;
-  justify-content: center;
-  padding: 40px 20px;
-  background-color: #F8FAFC;
-  min-height: 80vh;
+  width: 100%;
 }
 
 .contatos-card {
-  background-color: #FFFFFF;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  width: 100%;
-  max-width: 800px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 2px 16px rgba(124,92,191,0.08);
+  border: 1.5px solid #ddd8f0;
+  max-width: 680px;
+  margin: 0 auto;
 }
 
 .contatos-titulo {
-  color: #2C3E50;
-  text-align: center;
-  margin-bottom: 8px;
-  font-size: 24px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #2e2640;
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
 }
 
 .contatos-subtitulo {
-  color: #7F8C8D;
-  text-align: center;
-  margin-bottom: 30px;
   font-size: 14px;
+  color: #a89dc0;
+  margin-bottom: 24px;
 }
 
+/* ── Erro ────────────────────────────────────────────────── */
 .contatos-erro {
-  background-color: #FDECEA;
-  color: #E74C3C;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  text-align: center;
-  font-size: 14px;
+  background: #fdeaea;
+  border: 1.5px solid #f5c0c0;
+  color: #c0392b;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
 }
 
+/* ── Form ────────────────────────────────────────────────── */
 .contatos-form {
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .contatos-input-group {
@@ -52,56 +53,86 @@
 
 .contatos-input {
   flex: 1;
-  padding: 12px 15px;
-  border: 1px solid #E0E6ED;
+  min-width: 130px;
+  padding: 10px 14px;
   border-radius: 8px;
+  border: 1.5px solid #ddd8f0;
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
   font-size: 14px;
+  color: #2e2640;
+  background: #f5f3fb;
   outline: none;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.contatos-input:focus {
+  border-color: #a687d8;
+  background: #fff;
+}
+
+.contatos-input::placeholder {
+  color: #a89dc0;
 }
 
 .contatos-botao {
-  background-color: #3B82F6;
-  color: #FFFFFF;
+  padding: 10px 22px;
+  background: #7c5cbf;
+  color: #fff;
   border: none;
-  padding: 12px 24px;
   border-radius: 8px;
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s;
+  transition: opacity 0.18s;
+  white-space: nowrap;
 }
 
 .contatos-botao:hover {
-  background-color: #2563EB;
+  opacity: 0.88;
 }
 
+/* ── Divisória ───────────────────────────────────────────── */
 .contatos-linha-divisoria {
   border: none;
-  border-top: 1px solid #E0E6ED;
+  border-top: 1.5px solid #ddd8f0;
   margin-bottom: 20px;
 }
 
+/* ── Lista ───────────────────────────────────────────────── */
 .contatos-lista-container {
-  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .contatos-texto-vazio {
   text-align: center;
-  color: #95A5A6;
-  font-style: italic;
+  color: #a89dc0;
+  font-size: 14px;
+  padding: 16px 0;
 }
 
 .contatos-lista {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .contatos-item-lista {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid #F1F5F8;
+  justify-content: space-between;
+  background: #f5f3fb;
+  border: 1.5px solid #ddd8f0;
+  border-radius: 10px;
+  padding: 14px 18px;
+  transition: box-shadow 0.18s;
+}
+
+.contatos-item-lista:hover {
+  box-shadow: 0 2px 10px rgba(124,92,191,0.10);
 }
 
 .contatos-info-principal {
@@ -111,20 +142,22 @@
 }
 
 .contatos-nome-contato {
-  color: #34495E;
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #2e2640;
 }
 
 .contatos-badge {
-  background-color: #E1F0FF;
-  color: #3B82F6;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
+  background: #ede8f9;
+  color: #7c5cbf;
+  padding: 3px 10px;
+  border-radius: 20px;
 }
 
 .contatos-telefone-contato {
-  color: #7F8C8D;
+  font-size: 14px;
+  color: #6b5f87;
   font-weight: 500;
 }

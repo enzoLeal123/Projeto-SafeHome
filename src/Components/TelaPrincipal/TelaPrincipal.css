@@ -1,335 +1,354 @@
+/* ── Tokens ───────────────────────────────────────────────── */
+:root {
+  --bg:          #f5f3fb;
+  --surface:     #ffffff;
+  --surface-2:   #eeeaf8;
+  --border:      #ddd8f0;
+  --purple:      #7c5cbf;
+  --purple-light:#a687d8;
+  --purple-soft: #ede8f9;
+  --accent:      #b07ed3;
+  --danger:      #e05c5c;
+  --danger-soft: #fdeaea;
+  --text:        #2e2640;
+  --text-mid:    #6b5f87;
+  --text-soft:   #a89dc0;
+  --radius:      14px;
+  --radius-sm:   8px;
+  --shadow:      0 2px 16px rgba(124,92,191,0.08);
+  --shadow-md:   0 4px 24px rgba(124,92,191,0.13);
+  --font:        'Nunito', 'Segoe UI', sans-serif;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+
+/* ── Reset ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-  margin: 0;
-  padding: 0;
-  background-color: #f4f6f9; 
-  font-family: 'Segoe UI', Arial, sans-serif; 
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
 }
 
+/* ── Layout principal ────────────────────────────────────── */
 .pagina-principal {
-  width: 100%;
+  min-height: 100vh;
+  background: var(--bg);
 }
 
+.conteudo-principal {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 36px 24px 60px;
+}
+
+/* ── Topo / Navbar ───────────────────────────────────────── */
 .menu-topo {
-  background-color: #2b5c8f; 
-  color: white;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0 40px;
-  height: 70px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 64px;
+  background: var(--surface);
+  border-bottom: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .titulo-logo {
-  font-size: 22px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--purple);
+  letter-spacing: -0.3px;
 }
 
 .botoes-menu {
   display: flex;
-  height: 100%;
   align-items: center;
-  gap: 5px; 
+  gap: 4px;
 }
 
 .botoes-menu button {
-  background: none;
+  background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 15px;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-family: var(--font);
+  font-size: 14px;
   font-weight: 600;
-  height: 100%;
-  padding: 0 20px;
+  color: var(--text-mid);
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-bottom: 3px solid transparent; 
+  transition: background 0.18s, color 0.18s;
 }
 
 .botoes-menu button:hover {
-  color: white;
-  background-color: rgba(255, 255, 255, 0.05);
+  background: var(--purple-soft);
+  color: var(--purple);
 }
 
 .botoes-menu button.active {
-  color: white;
-  border-bottom: 3px solid #ffffff; 
+  background: var(--purple-soft);
+  color: var(--purple);
 }
 
-.botoes-menu .btn-emergencia {
-  background-color: #e74c3c; 
-  color: white !important;
-  font-weight: 700;
-  border-radius: 20px;
-  height: 38px; 
-  padding: 0 18px;
-  margin-left: 15px; 
-  border-bottom: none !important; 
-  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
-  animation: pulsarBotao 2s infinite ease-in-out;
-  transition: background-color 0.2s;
+.btn-emergencia {
+  background: var(--danger) !important;
+  color: #fff !important;
+  padding: 8px 20px !important;
+  border-radius: 30px !important;
+  font-weight: 700 !important;
+  transition: opacity 0.18s !important;
 }
 
-.botoes-menu .btn-emergencia:hover {
-  background-color: #c0392b; 
+.btn-emergencia:hover {
+  opacity: 0.88;
+  background: var(--danger) !important;
 }
 
 .btn-sair {
-  background-color: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  color: white;
-  padding: 8px 18px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  padding: 6px 18px;
+  border-radius: 30px;
+  font-family: var(--font);
+  font-size: 13px;
   font-weight: 600;
+  color: var(--text-mid);
   cursor: pointer;
-  border-radius: 20px; 
-  transition: all 0.2s ease;
+  transition: border-color 0.18s, color 0.18s;
 }
 
 .btn-sair:hover {
-  background-color: white;
-  color: #2b5c8f;
-  border-color: white;
+  border-color: var(--purple-light);
+  color: var(--purple);
 }
 
-.conteudo-principal {
-  width: 100%;
-  margin: 40px auto;
-  padding: 0 40px;
-  box-sizing: border-box;
+/* ── Cabeçalho boas-vindas ───────────────────────────────── */
+.cabecalho-boas-vindas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
 }
 
 .cabecalho-boas-vindas h2 {
-  color: #2c3e50;
-  font-size: 32px; 
-  font-weight: 700; 
-  margin-top: 0; 
-  margin-bottom: 25px;
-  text-align: left; 
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.4px;
 }
 
-.caixa-agenda {
-  max-width: 800px;
-  margin: 0 auto; 
-  background-color: white;
-  border-radius: 12px; 
-  padding: 30px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.02);
-  box-sizing: border-box;
-}
-
-.caixa-agenda h3 {
-  margin-top: 0;
-  color: #34495e;
-  font-size: 18px;
-  margin-bottom: 15px;
-}
-
-.caixa-agenda hr {
-  border: 0;
-  border-top: 1px solid #eaeded;
-  margin-bottom: 20px;
-}
-
-.item-agenda {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid #f8f9fa;
-  color: #566573;
-  font-size: 15px;
-}
-
-.item-agenda:last-child {
-  border-bottom: none; 
-}
-
-.item-agenda input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+.btn-historico {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-mid);
   cursor: pointer;
+  transition: all 0.18s;
 }
 
-.tela-vazia {
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: white;
-  padding: 60px 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  text-align: center;
-  color: #7f8c8d;
-  box-sizing: border-box;
+.btn-historico:hover {
+  border-color: var(--purple-light);
+  color: var(--purple);
 }
 
+.btn-historico.ativo {
+  background: var(--purple-soft);
+  border-color: var(--purple-light);
+  color: var(--purple);
+}
 
+/* ── Abas de dias ────────────────────────────────────────── */
 .abas-semana {
   display: flex;
-  gap: 10px;
-  max-width: 800px;
-  margin: 0 auto 20px auto;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .abas-semana button {
-  flex: 1;
-  padding: 12px 10px;
-  background-color: #e0e6ed;
-  border: none;
-  border-radius: 8px;
+  padding: 9px 22px;
+  border-radius: 30px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-family: var(--font);
+  font-size: 13px;
   font-weight: 600;
-  color: #566573;
-  font-size: 14px;
+  color: var(--text-mid);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s;
 }
 
 .abas-semana button:hover {
-  background-color: #d1dbe5;
+  border-color: var(--purple-light);
+  color: var(--purple);
 }
 
 .abas-semana button.aba-ativa {
-  background-color: #2b5c8f; 
-  color: white;
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(124,92,191,0.25);
 }
 
+/* ── Caixa agenda ────────────────────────────────────────── */
+.caixa-agenda {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  box-shadow: var(--shadow);
+  border: 1.5px solid var(--border);
+}
 
-.form-adicionar {
-  display: flex;
-  gap: 12px;
+.caixa-agenda h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.caixa-agenda hr {
+  border: none;
+  border-top: 1.5px solid var(--border);
   margin-bottom: 20px;
 }
 
+/* ── Form adicionar ──────────────────────────────────────── */
+.form-adicionar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
 
-.form-adicionar input {
+.form-adicionar input,
+.form-adicionar select {
   flex: 1;
-  padding: 12px 15px;
-  border: 1px solid #dcdde1;
-  border-radius: 8px;
+  min-width: 180px;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  font-family: var(--font);
   font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.18s;
 }
 
-.form-adicionar input:focus {
-  border-color: #2b5c8f;
+.form-adicionar input:focus,
+.form-adicionar select:focus {
+  border-color: var(--purple-light);
+  background: #fff;
 }
-
 
 .form-adicionar button {
-  background-color: #2b5c8f;
-  color: white;
+  padding: 10px 24px;
+  background: var(--purple);
+  color: #fff;
   border: none;
-  padding: 0 25px;
-  border-radius: 8px;
-  font-weight: 700;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
   font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: opacity 0.18s;
+  white-space: nowrap;
 }
 
 .form-adicionar button:hover {
-  background-color: #1e4369;
+  opacity: 0.88;
+}
+
+/* ── Itens da agenda ─────────────────────────────────────── */
+.lista-itens-agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .item-agenda {
   display: flex;
-  justify-content: space-between; 
   align-items: center;
+  justify-content: space-between;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  transition: box-shadow 0.18s;
+}
+
+.item-agenda:hover {
+  box-shadow: var(--shadow);
 }
 
 .item-conteudo {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
+}
+
+.item-conteudo input[type="checkbox"] {
+  accent-color: var(--purple);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.tarefa-texto {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.tarefa-texto.historico {
+  text-decoration: line-through;
+  color: var(--text-soft);
 }
 
 .tag-dia {
   font-size: 11px;
-  background-color: #f1f2f6;
-  color: #718093;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--purple);
+  background: var(--purple-soft);
+  padding: 2px 10px;
+  border-radius: 20px;
 }
 
 .btn-deletar {
   background: none;
   border: none;
-  cursor: pointer;
   font-size: 16px;
-  padding: 5px;
+  cursor: pointer;
+  padding: 4px 6px;
   border-radius: 6px;
-  transition: background-color 0.2s;
+  opacity: 0.6;
+  transition: opacity 0.15s, background 0.15s;
 }
 
 .btn-deletar:hover {
-  background-color: #ffeaea;
+  opacity: 1;
+  background: var(--danger-soft);
 }
 
-.abas-semana {
-  display: flex;
-  gap: 10px;
-  max-width: 800px;
-  margin: 0 auto 20px auto;
-  overflow-x: auto;
-  padding-bottom: 5px; 
+/* ── Mensagens de estado ─────────────────────────────────── */
+.msg-lista-vazia,
+.msg-modo-leitura {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-soft);
+  padding: 20px 0 8px;
 }
-
-.cabecalho-boas-vindas {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-
-.btn-historico {
-  padding: 8px 16px;
-  background-color: #3B82F6;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s, transform 0.1s;
-}
-
-.btn-historico:hover {
-  opacity: 0.9;
-}
-
-
-.btn-historico.ativo {
-  background-color: #95A5A6;
-}
-
 
 .msg-modo-leitura {
-  color: #7F8C8D;
   font-style: italic;
-  font-size: 14px;
-  margin-bottom: 20px;
-}
-
-.msg-lista-vazia {
-  text-align: center;
-  color: #95A5A6;
-  margin-top: 20px;
-}
-
-
-.tarefa-texto {
-  color: #000;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-
-.tarefa-texto.historico {
-  text-decoration: line-through;
-  color: #7F8C8D;
+  margin-bottom: 16px;
 }
