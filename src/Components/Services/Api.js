@@ -67,8 +67,11 @@ export const createContact = async (contactData) => {
   return response.data;
 };
 
+// No seu Services/Api.js, altere a função para:
 export const getAgendaOcorrencias = async (userId) => {
-  const response = await API.get(`/agenda/ocorrencias/${userId}`);
+  // Ajustamos a rota para seguir o padrão que vimos no seu agendaRouter.js:
+  // agendaRouter.get('/ocorrencias/paciente/:id_paciente', ...)
+  const response = await API.get(`/agenda/ocorrencias/paciente/${userId}`);
   return response.data;
 };
 
@@ -77,8 +80,22 @@ export const createAgendaTemplate = async (templateData) => {
   return response.data;
 };
 
-export const updateAgendaOccurrenceStatus = async (id, status) => {
-  const response = await API.patch(`/agenda/ocorrencias/${id}/status`, { status });
+// Substitua APENAS esta função no seu Api.js:
+
+export const updateAgendaOccurrenceStatus = async (id, statusAtual) => {
+  const response = await API.patch(`/agenda/ocorrencias/${id}/status`, {
+    status_concluido: statusAtual !== 'CONCLUIDA', // inverte o status atual
+  });
+  return response.data;
+};
+ 
+export const deleteAgendaTemplate = async (idEvento) => {
+  const response = await API.delete(`/agenda/template/${idEvento}`);
+  return response.data;
+};
+
+export const getAgendaOcorrenciasPorData = async (userId, data) => {
+  const response = await API.get(`/agenda/ocorrencias/paciente/${userId}/data/${data}`);
   return response.data;
 };
 
