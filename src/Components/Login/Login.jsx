@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
-import { loginUser, registerUser, saveFcmToken, setApiToken } from "../Services/Api";
+// Importação corrigida: trouxemos apenas o login e o registro reais!
+import { loginUser, registerUser } from '../Services/Api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -32,7 +33,8 @@ const Login = () => {
         setNome("");
         setSobrenome("");
       } catch (error) {
-        setMensagemErro(error.message || "Erro ao criar conta. Verifique os dados.");
+        // Agora pegamos a mensagem de erro real vinda do MySQL/Zod
+        setMensagemErro(error.response?.data?.message || "Erro ao criar conta. Verifique os dados.");
       }
       return;
     }
@@ -46,27 +48,20 @@ const Login = () => {
       try {
         const dadosLogin = await loginUser({ email, password: senha });
         
-      
         if (dadosLogin && dadosLogin.token) {
-          
-          
-          setApiToken(dadosLogin.token);
-          
+          // A função setApiToken foi removida daqui, pois o nosso novo Api.js
+          // já faz o salvamento do token automaticamente no localStorage!
 
-          if (dadosLogin.user && dadosLogin.user.id) {
-            localStorage.setItem('usuario_id', dadosLogin.user.id);
+          if (dadosLogin.user && dadosLogin.user.id_usuario) {
+            localStorage.setItem('usuario_id', dadosLogin.user.id_usuario);
           }
-
-        
-          const tokenNavegadorMock = "fcm_web_" + Math.random().toString(36).substring(2, 15);
-          saveFcmToken(tokenNavegadorMock).catch(e => console.warn("FCM ignorado no protótipo:", e.message));
 
           navigate('/home');
         } else {
           setMensagemErro("Erro inesperado: O servidor não retornou o token de acesso.");
         }
       } catch (error) {
-        setMensagemErro(error.message || "E-mail ou senha incorretos!");
+        setMensagemErro(error.response?.data?.message || "E-mail ou senha incorretos!");
       }
     }
   }
