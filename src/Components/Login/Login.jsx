@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
+import { loginUser, registerUser, saveFcmToken, setApiToken } from "../Services/Api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,44 +14,59 @@ const Login = () => {
   const [nome, setNome] = useState("");
   const [sobrenome, setSobrenome] = useState("");
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
     setMensagemErro("");
 
-  
     if (!isLogin) {
       if (!email || !senha || !nome || !sobrenome) {
         setMensagemErro("Por favor, preencha todos os campos.");
         return;
       }
 
-      
-      localStorage.setItem('usuario_email', email);
-      localStorage.setItem('usuario_senha', senha);
-      localStorage.setItem('usuario_nome', nome);
-      localStorage.setItem('usuario_sobrenome', sobrenome);
-
-      alert("Conta criada com sucesso! Faça Login para acessar o SafeHome");
-      
-      setIsLogin(true);
-      setSenha("");
-      setNome("");
-      setSobrenome("");
+      try {
+        await registerUser({ email, senha, nome, sobrenome });
+        alert("Conta criada com sucesso! Faça Login para acessar o SafeHome");
+        setIsLogin(true);
+        setSenha("");
+        setNome("");
+        setSobrenome("");
+      } catch (error) {
+        setMensagemErro(error.message || "Erro ao criar conta. Verifique os dados.");
+      }
       return;
     }
 
-  
     if (isLogin) {
+      if (!email || !senha) {
+        setMensagemErro("Preencha e-mail e senha.");
+        return;
+      }
 
-      const emailSalvo = localStorage.getItem('usuario_email');
-      const senhaSalva = localStorage.getItem('usuario_senha');
+      try {
+        const dadosLogin = await loginUser({ email, password: senha });
+        
+      
+        if (dadosLogin && dadosLogin.token) {
+          
+          
+          setApiToken(dadosLogin.token);
+          
 
-   
-      if (email === emailSalvo && senha === senhaSalva) {
+          if (dadosLogin.user && dadosLogin.user.id) {
+            localStorage.setItem('usuario_id', dadosLogin.user.id);
+          }
 
-        navigate('/home');
-      } else {
-        setMensagemErro("E-mail ou senha incorretos!");
+        
+          const tokenNavegadorMock = "fcm_web_" + Math.random().toString(36).substring(2, 15);
+          saveFcmToken(tokenNavegadorMock).catch(e => console.warn("FCM ignorado no protótipo:", e.message));
+
+          navigate('/home');
+        } else {
+          setMensagemErro("Erro inesperado: O servidor não retornou o token de acesso.");
+        }
+      } catch (error) {
+        setMensagemErro(error.message || "E-mail ou senha incorretos!");
       }
     }
   }
@@ -88,8 +104,6 @@ const Login = () => {
         {mensagemErro && <div className="erro-mensagem">{mensagemErro}</div>}
 
         <form onSubmit={handleLogin}>
-          
-        
           {!isLogin && (
             <>
               <div className="input-group">
