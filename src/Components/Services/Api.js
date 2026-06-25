@@ -43,7 +43,7 @@ export const getUserProfile = async () => {
 };
 
 export const saveFcmToken = async (fcmToken) => {
-  const response = await API.patch('/users/fcm-token', { fcmToken });
+  const response = await API.patch('/users/fcm-token', { fcm_token: fcmToken });
   return response.data;
 };
 

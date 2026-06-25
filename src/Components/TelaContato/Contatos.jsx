@@ -11,10 +11,11 @@ const Contatos = () => {
   const [parentesco, setParentesco] = useState('');
   const [modalErro, setModalErro] = useState({ open: false, msg: '' });
 
-  const carregarContatos = async () => {
+    const carregarContatos = async () => {
     setCarregando(true);
     try {
-      const dados = await getContacts();
+      const idLogado = localStorage.getItem('usuario_id'); // Pega o seu ID
+      const dados = await getContacts(idLogado); // Envia para a API
       setListaContatos(Array.isArray(dados) ? dados : []);
     } catch (error) {
       console.error('Erro ao carregar contatos:', error);
@@ -33,8 +34,17 @@ const Contatos = () => {
       setModalErro({ open: true, msg: 'Por favor, preencha pelo menos o Nome e o Telefone.' });
       return;
     }
-    try {
-      await createContact({ nome, telefone, parentesco });
+ try {
+      const idLogado = localStorage.getItem('usuario_id'); // Pega o seu ID
+      
+      // Envia o id_usuario junto no pacote
+      await createContact({ 
+        nome, 
+        telefone, 
+        parentesco, 
+        id_usuario: Number(idLogado) 
+      });
+      
       setNome(''); setTelefone(''); setParentesco('');
       carregarContatos();
     } catch (error) {
