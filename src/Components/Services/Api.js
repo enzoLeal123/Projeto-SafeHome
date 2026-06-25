@@ -67,10 +67,7 @@ export const createContact = async (contactData) => {
   return response.data;
 };
 
-// No seu Services/Api.js, altere a função para:
 export const getAgendaOcorrencias = async (userId) => {
-  // Ajustamos a rota para seguir o padrão que vimos no seu agendaRouter.js:
-  // agendaRouter.get('/ocorrencias/paciente/:id_paciente', ...)
   const response = await API.get(`/agenda/ocorrencias/paciente/${userId}`);
   return response.data;
 };
@@ -80,11 +77,9 @@ export const createAgendaTemplate = async (templateData) => {
   return response.data;
 };
 
-// Substitua APENAS esta função no seu Api.js:
-
 export const updateAgendaOccurrenceStatus = async (id, statusAtual) => {
   const response = await API.patch(`/agenda/ocorrencias/${id}/status`, {
-    status_concluido: statusAtual !== 'CONCLUIDA', // inverte o status atual
+    status_concluido: statusAtual !== 'CONCLUIDA', 
   });
   return response.data;
 };
@@ -99,19 +94,17 @@ export const getAgendaOcorrenciasPorData = async (userId, data) => {
   return response.data;
 };
 
-
 export const deleteContact = (idContato) =>
   API.delete(`/contatos/${idContato}`).then(r => r.data);
 
-// Histórico de pânico do usuário
 export const getPanicLogs = async (userId) => {
-  const response = await API.get(`/panic/logs/${userId}`);
+  const response = await API.get(`/emergency/logs/${userId}`);
   return response.data;
 };
  
-// Acionar pânico com coordenadas opcionais
+
 export const triggerPanic = async (latitude, longitude) => {
-  const response = await API.post('/panic/trigger', { latitude, longitude, origem: 'MANUAL' });
+  const response = await API.post('/emergency/panic/trigger', { latitude, longitude, origem: 'MANUAL' });
   return response.data;
 };
 

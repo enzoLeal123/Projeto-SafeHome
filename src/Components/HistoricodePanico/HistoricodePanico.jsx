@@ -65,7 +65,7 @@ const HistoricoPanico = () => {
                   {(log.latitude && log.longitude) && (
                     <a
                       className="panico-mapa-link"
-                      href={`https://www.google.com/maps?q=${log.latitude},${log.longitude}`}
+                      href={`https://www.google.com/maps/search/?api=1&query=${log.latitude},${log.longitude}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
