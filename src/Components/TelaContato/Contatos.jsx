@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Contatos.css';
 import Modal from '../Modal/Modal';
-import { getContacts, createContact } from '../Services/Api';
+import { getContacts, createContact, deleteContact } from '../Services/Api';
 
 const Contatos = () => {
   const [listaContatos, setListaContatos] = useState([]);
@@ -10,12 +10,14 @@ const Contatos = () => {
   const [telefone, setTelefone] = useState('');
   const [parentesco, setParentesco] = useState('');
   const [modalErro, setModalErro] = useState({ open: false, msg: '' });
+  const [modalExcluir, setModalExcluir] = useState({ open: false, contato: null });
+  const [excluindo, setExcluindo] = useState(false);
 
-    const carregarContatos = async () => {
+  const carregarContatos = async () => {
     setCarregando(true);
     try {
-      const idLogado = localStorage.getItem('usuario_id'); // Pega o seu ID
-      const dados = await getContacts(idLogado); // Envia para a API
+      // getContacts() sem parâmetro — igual ao seu Api.js
+      const dados = await getContacts();
       setListaContatos(Array.isArray(dados) ? dados : []);
     } catch (error) {
       console.error('Erro ao carregar contatos:', error);
@@ -34,22 +36,33 @@ const Contatos = () => {
       setModalErro({ open: true, msg: 'Por favor, preencha pelo menos o Nome e o Telefone.' });
       return;
     }
- try {
-      const idLogado = localStorage.getItem('usuario_id'); // Pega o seu ID
-      
-      // Envia o id_usuario junto no pacote
-      await createContact({ 
-        nome, 
-        telefone, 
-        parentesco, 
-        id_usuario: Number(idLogado) 
-      });
-      
+    try {
+      const idLogado = localStorage.getItem('usuario_id');
+      await createContact({ nome, telefone, parentesco, id_usuario: Number(idLogado) });
       setNome(''); setTelefone(''); setParentesco('');
       carregarContatos();
     } catch (error) {
       const msg = error.response?.data?.erro || 'Erro ao salvar contato. Tente novamente.';
       setModalErro({ open: true, msg });
+    }
+  };
+
+  const pedirConfirmacaoExclusao = (contato) => {
+    setModalExcluir({ open: true, contato });
+  };
+
+  const confirmarExclusao = async () => {
+    setExcluindo(true);
+    try {
+      await deleteContact(modalExcluir.contato.id);
+      setModalExcluir({ open: false, contato: null });
+      carregarContatos();
+    } catch (error) {
+      const msg = error.response?.data?.erro || 'Erro ao excluir contato. Tente novamente.';
+      setModalExcluir({ open: false, contato: null });
+      setModalErro({ open: true, msg });
+    } finally {
+      setExcluindo(false);
     }
   };
 
@@ -83,7 +96,17 @@ const Contatos = () => {
                     <strong className="contatos-nome-contato">{contato.nome}</strong>
                     {contato.parentesco && <span className="contatos-badge">{contato.parentesco}</span>}
                   </div>
-                  <span className="contatos-telefone-contato">{contato.telefone}</span>
+                  <div className="contatos-lado-direito">
+                    <span className="contatos-telefone-contato">{contato.telefone}</span>
+                    <button
+                      className="contatos-btn-excluir"
+                      type="button"
+                      title="Remover contato"
+                      onClick={() => pedirConfirmacaoExclusao(contato)}
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -91,11 +114,38 @@ const Contatos = () => {
         </div>
       </div>
 
+      {/* Modal: confirmação de exclusão */}
+      <Modal
+        isOpen={modalExcluir.open}
+        onClose={() => setModalExcluir({ open: false, contato: null })}
+        title="Remover contato"
+        footer={
+          <>
+            <button className="modal-btn-cancelar" onClick={() => setModalExcluir({ open: false, contato: null })}>
+              Cancelar
+            </button>
+            <button className="modal-btn-perigo" onClick={confirmarExclusao} disabled={excluindo}>
+              {excluindo ? 'Removendo...' : 'Remover'}
+            </button>
+          </>
+        }
+      >
+        <p>
+          Tem certeza que deseja remover <strong>{modalExcluir.contato?.nome}</strong> da sua rede de apoio?
+          Esta ação não pode ser desfeita.
+        </p>
+      </Modal>
+
+      {/* Modal: erro */}
       <Modal
         isOpen={modalErro.open}
         onClose={() => setModalErro({ open: false, msg: '' })}
         title="Atenção"
-        footer={<button className="modal-btn-confirmar" onClick={() => setModalErro({ open: false, msg: '' })}>Entendi</button>}
+        footer={
+          <button className="modal-btn-confirmar" onClick={() => setModalErro({ open: false, msg: '' })}>
+            Entendi
+          </button>
+        }
       >
         <p>{modalErro.msg}</p>
       </Modal>

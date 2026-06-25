@@ -5,12 +5,18 @@ import Contatos from '../TelaContato/Contatos';
 import Modal from '../Modal/Modal';
 import {
   getUserProfile,
+  getContacts,
   getAgendaOcorrenciasPorData,
   createAgendaTemplate,
   updateAgendaOccurrenceStatus,
   deleteAgendaTemplate,
 } from '../Services/Api';
 import API from '../Services/Api';
+
+const formatarParaWhatsApp = (telefone) => {
+  const apenasDigitos = telefone.replace(/\D/g, '');
+  return apenasDigitos.startsWith('55') ? apenasDigitos : `55${apenasDigitos}`;
+};
 
 const TelaPrincipal = () => {
   const [tela, setTela] = useState('inicio');
@@ -23,11 +29,12 @@ const TelaPrincipal = () => {
   const [editandoIndex, setEditandoIndex] = useState(null);
   const [textoEditando, setTextoEditando] = useState('');
 
-  // ── Estados dos modais ────────────────────────────────────────
+  // Contatos para o modal de emergência
+  const [contatosEmergencia, setContatosEmergencia] = useState([]);
+
   const [modalConfirmacao, setModalConfirmacao] = useState({ open: false, idEvento: null });
   const [modalEmergencia, setModalEmergencia] = useState(false);
   const [modalErro, setModalErro] = useState({ open: false, msg: '' });
-  const [modalSucesso, setModalSucesso] = useState({ open: false, msg: '' });
 
   const idUsuario = localStorage.getItem('usuario_id');
 
@@ -58,7 +65,7 @@ const TelaPrincipal = () => {
       }
     }
     const agora = new Date();
-    return `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${dia}`;
+    return `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${dia}`;
   };
 
   const carregarAgendaDoBanco = async (dia = diaAtivo, modoHistorico = isHistorico) => {
@@ -108,7 +115,19 @@ const TelaPrincipal = () => {
         if (error.response?.status === 401) window.location.href = '/';
       }
     };
+
+    // getContacts() sem parâmetro — igual ao seu Api.js
+    const carregarContatosEmergencia = async () => {
+      try {
+        const dados = await getContacts();
+        setContatosEmergencia(Array.isArray(dados) ? dados : []);
+      } catch (error) {
+        console.error('Erro ao carregar contatos de emergência:', error);
+      }
+    };
+
     carregarPerfil();
+    carregarContatosEmergencia();
     carregarAgendaDoBanco(diaAtivo, isHistorico);
   }, []);
 
@@ -148,19 +167,14 @@ const TelaPrincipal = () => {
     }
   };
 
-  // Abre o modal de confirmação em vez de window.confirm
-  const removerTarefa = (idEvento) => {
-    setModalConfirmacao({ open: true, idEvento });
-  };
+  const removerTarefa = (idEvento) => setModalConfirmacao({ open: true, idEvento });
 
-  // Executa a exclusão real após confirmação
   const confirmarExclusao = async () => {
     try {
       await deleteAgendaTemplate(modalConfirmacao.idEvento);
       setModalConfirmacao({ open: false, idEvento: null });
       carregarAgendaDoBanco(diaAtivo, isHistorico);
     } catch (error) {
-      console.error('Erro ao excluir tarefa:', error.response?.data);
       setModalConfirmacao({ open: false, idEvento: null });
       setModalErro({ open: true, msg: 'Não foi possível excluir a tarefa. Tente novamente.' });
     }
@@ -176,31 +190,24 @@ const TelaPrincipal = () => {
     }
   };
 
-  const iniciarEdicao = (idx, textoAtual) => {
-    setEditandoIndex(idx);
-    setTextoEditando(textoAtual);
-  };
-
+  const iniciarEdicao = (idx, textoAtual) => { setEditandoIndex(idx); setTextoEditando(textoAtual); };
   const salvarEdicao = (idx) => {
     if (!textoEditando.trim()) return;
-    setListaTarefas(listaTarefas.map((t, i) =>
-      i === idx ? { ...t, texto: textoEditando.trim() } : t
-    ));
-    setEditandoIndex(null);
-    setTextoEditando('');
+    setListaTarefas(listaTarefas.map((t, i) => i === idx ? { ...t, texto: textoEditando.trim() } : t));
+    setEditandoIndex(null); setTextoEditando('');
+  };
+  const cancelarEdicao = () => { setEditandoIndex(null); setTextoEditando(''); };
+
+  // Abre WhatsApp com mensagem de alerta pré-escrita
+  const abrirWhatsApp = (contato) => {
+    const numero = formatarParaWhatsApp(contato.telefone);
+    const msg = encodeURIComponent(
+      `🚨 ALERTA DE EMERGÊNCIA — SafeHome\n\nOlá, ${contato.nome}! ${nomeUsuario} ${sobrenomeUsuario} acionou o botão de emergência no aplicativo SafeHome e pode precisar de ajuda imediata.\n\nPor favor, entre em contato o quanto antes.`
+    );
+    window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
   };
 
-  const cancelarEdicao = () => {
-    setEditandoIndex(null);
-    setTextoEditando('');
-  };
-
-  // Abre modal de emergência em vez de alert
-  const dispararEmergencia = () => {
-    setModalEmergencia(true);
-  };
-
-  const confirmarEmergencia = () => {
+  const ligar192 = () => {
     setModalEmergencia(false);
     window.location.href = 'tel:192';
   };
@@ -219,7 +226,7 @@ const TelaPrincipal = () => {
           <button className={tela === 'inicio' ? 'active' : ''} onClick={() => setTela('inicio')}>Início</button>
           <button className={tela === 'sinais' ? 'active' : ''} onClick={() => setTela('sinais')}>Sinais Vitais</button>
           <button className={tela === 'contatos' ? 'active' : ''} onClick={() => setTela('contatos')}>Contatos</button>
-          <button className="btn-emergencia" onClick={dispararEmergencia}>Emergência</button>
+          <button className="btn-emergencia" onClick={() => setModalEmergencia(true)}>Emergência</button>
         </div>
         <button className="btn-sair" onClick={deslogar}>Sair</button>
       </div>
@@ -245,7 +252,6 @@ const TelaPrincipal = () => {
             <div className="caixa-agenda">
               <h3>{isHistorico ? `Histórico do Dia ${diaAtivo}` : `Agenda do Dia ${diaAtivo}`}</h3>
               <hr />
-
               {!isHistorico ? (
                 <form onSubmit={adicionarNovaTarefa} className="form-adicionar">
                   <input
@@ -258,9 +264,7 @@ const TelaPrincipal = () => {
                   <button type="submit">Adicionar</button>
                 </form>
               ) : (
-                <p className="msg-modo-leitura">
-                  Modo leitura: Não é possível adicionar novas tarefas em dias passados.
-                </p>
+                <p className="msg-modo-leitura">Modo leitura: Não é possível adicionar novas tarefas em dias passados.</p>
               )}
 
               {carregando ? (
@@ -330,7 +334,7 @@ const TelaPrincipal = () => {
         {tela === 'contatos' && <Contatos />}
       </div>
 
-      {/* ── Modais ── */}
+      {/* ── Modal: Excluir tarefa ── */}
       <Modal
         isOpen={modalConfirmacao.open}
         onClose={() => setModalConfirmacao({ open: false, idEvento: null })}
@@ -345,6 +349,7 @@ const TelaPrincipal = () => {
         <p>Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.</p>
       </Modal>
 
+      {/* ── Modal: Emergência com WhatsApp ── */}
       <Modal
         isOpen={modalEmergencia}
         onClose={() => setModalEmergencia(false)}
@@ -352,14 +357,45 @@ const TelaPrincipal = () => {
         footer={
           <>
             <button className="modal-btn-cancelar" onClick={() => setModalEmergencia(false)}>Cancelar</button>
-            <button className="modal-btn-perigo" onClick={confirmarEmergencia}>Ligar 192</button>
+            <button className="modal-btn-perigo" onClick={ligar192}>📞 Ligar 192</button>
           </>
         }
       >
-        <p>Isso irá notificar seus contatos de confiança e abrir o discador para ligar para a Emergência <strong>192</strong>.</p>
-        <p style={{ marginTop: 8 }}>Deseja continuar?</p>
+        <p>Acione rapidamente um contato de confiança ou ligue para o SAMU.</p>
+
+        {contatosEmergencia.length > 0 ? (
+          <div className="emergencia-contatos">
+            <p className="emergencia-label">Seus contatos de apoio:</p>
+            {contatosEmergencia.map((contato) => (
+              <button
+                key={contato.id}
+                className="emergencia-btn-whatsapp"
+                type="button"
+                onClick={() => abrirWhatsApp(contato)}
+              >
+                <span className="emergencia-whatsapp-icone">💬</span>
+                <span className="emergencia-whatsapp-info">
+                  <strong>{contato.nome}</strong>
+                  {contato.parentesco && <small>{contato.parentesco}</small>}
+                </span>
+                <span className="emergencia-whatsapp-label">WhatsApp</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="emergencia-sem-contatos">
+            Você ainda não tem contatos cadastrados.{' '}
+            <span
+              style={{ color: '#7c5cbf', cursor: 'pointer', textDecoration: 'underline' }}
+              onClick={() => { setModalEmergencia(false); setTela('contatos'); }}
+            >
+              Adicionar agora
+            </span>
+          </p>
+        )}
       </Modal>
 
+      {/* ── Modal: Erro genérico ── */}
       <Modal
         isOpen={modalErro.open}
         onClose={() => setModalErro({ open: false, msg: '' })}

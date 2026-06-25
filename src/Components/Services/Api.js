@@ -99,4 +99,8 @@ export const getAgendaOcorrenciasPorData = async (userId, data) => {
   return response.data;
 };
 
+
+export const deleteContact = (idContato) =>
+  API.delete(`/contatos/${idContato}`).then(r => r.data);
+
 export default API;

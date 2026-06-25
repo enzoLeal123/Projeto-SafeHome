@@ -161,3 +161,28 @@
   color: #6b5f87;
   font-weight: 500;
 }
+
+/* ── Lado direito do item (telefone + botão excluir) ─────── */
+.contatos-lado-direito {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ── Botão excluir contato ───────────────────────────────── */
+.contatos-btn-excluir {
+  background: none;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 5px 7px;
+  border-radius: 8px;
+  opacity: 0.45;
+  transition: opacity 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.contatos-btn-excluir:hover {
+  opacity: 1;
+  background: #fdeaea;
+}

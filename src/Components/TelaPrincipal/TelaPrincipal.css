@@ -449,3 +449,75 @@ body {
   border-color: var(--danger);
   color: var(--danger);
 }
+
+/* ── Modal de Emergência — contatos WhatsApp ─────────────── */
+.emergencia-contatos {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.emergencia-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b5f87;
+  margin-bottom: 2px;
+}
+
+.emergencia-btn-whatsapp {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+  text-align: left;
+}
+
+.emergencia-btn-whatsapp:hover {
+  background: #dcfce7;
+  border-color: #4ade80;
+  box-shadow: 0 2px 10px rgba(74, 222, 128, 0.2);
+}
+
+.emergencia-whatsapp-icone {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.emergencia-whatsapp-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1px;
+}
+
+.emergencia-whatsapp-info strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2e2640;
+}
+
+.emergencia-whatsapp-info small {
+  font-size: 12px;
+  color: #6b5f87;
+}
+
+.emergencia-whatsapp-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+.emergencia-sem-contatos {
+  margin-top: 14px;
+  font-size: 13px;
+  color: #6b5f87;
+  text-align: center;
+}
