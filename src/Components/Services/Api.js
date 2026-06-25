@@ -58,12 +58,12 @@ export const sendHealthTelemetry = async (telemetryData) => {
 };
 
 export const getContacts = async () => {
-  const response = await API.get('/users/contacts');
+  const response = await API.get('/contatos');
   return response.data;
 };
 
 export const createContact = async (contactData) => {
-  const response = await API.post('/users/contact', contactData);
+  const response = await API.post('/contatos', contactData);
   return response.data;
 };
 

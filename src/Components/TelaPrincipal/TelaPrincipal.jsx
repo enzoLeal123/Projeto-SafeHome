@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './TelaPrincipal.css';
 import SinaisVitais from '../SinaisVitais/SinaisVitais.jsx';
 import Contatos from '../TelaContato/Contatos';
+import Modal from '../Modal/Modal';
 import {
   getUserProfile,
   getAgendaOcorrenciasPorData,
@@ -22,9 +23,14 @@ const TelaPrincipal = () => {
   const [editandoIndex, setEditandoIndex] = useState(null);
   const [textoEditando, setTextoEditando] = useState('');
 
+  // ── Estados dos modais ────────────────────────────────────────
+  const [modalConfirmacao, setModalConfirmacao] = useState({ open: false, idEvento: null });
+  const [modalEmergencia, setModalEmergencia] = useState(false);
+  const [modalErro, setModalErro] = useState({ open: false, msg: '' });
+  const [modalSucesso, setModalSucesso] = useState({ open: false, msg: '' });
+
   const idUsuario = localStorage.getItem('usuario_id');
 
-  // ── Gera dias da semana ──────────────────────────────────────
   const gerarDiasDoCalendario = (modoHistorico) => {
     const dias = [];
     const inicio = modoHistorico ? -5 : 0;
@@ -40,7 +46,6 @@ const TelaPrincipal = () => {
   const meusDias = gerarDiasDoCalendario(isHistorico);
   const [diaAtivo, setDiaAtivo] = useState(gerarDiasDoCalendario(false)[0]);
 
-  // Converte "24" (dia) para "2026-06-24" (YYYY-MM-DD) com offset do modo
   const diaParaDataCompleta = (dia, modoHistorico) => {
     const hoje = new Date();
     const inicio = modoHistorico ? -5 : 0;
@@ -49,21 +54,18 @@ const TelaPrincipal = () => {
       const data = new Date();
       data.setDate(hoje.getDate() + i);
       if (String(data.getDate()).padStart(2, '0') === dia) {
-        return data.toISOString().split('T')[0]; // YYYY-MM-DD
+        return data.toISOString().split('T')[0];
       }
     }
-    // fallback: monta com o mês/ano atual
     const agora = new Date();
     return `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${dia}`;
   };
 
-  // ── Carrega ocorrências do dia ativo ─────────────────────────
   const carregarAgendaDoBanco = async (dia = diaAtivo, modoHistorico = isHistorico) => {
     if (!idUsuario) return;
     setCarregando(true);
     try {
       const dataCompleta = diaParaDataCompleta(dia, modoHistorico);
-
       const [ocorrencias, templates] = await Promise.all([
         getAgendaOcorrenciasPorData(idUsuario, dataCompleta),
         API.get(`/agenda/template/paciente/${idUsuario}`).then(r => r.data),
@@ -77,7 +79,7 @@ const TelaPrincipal = () => {
       const tarefasNormalizadas = (Array.isArray(ocorrencias) ? ocorrencias : []).map(oc => {
         const template = mapaTemplates[oc.id_evento] || {};
         const dataOc = new Date(oc.data_ocorrencia);
-        const diaDaOc = String(dataOc.getUTCDate()).padStart(2, '0');
+        const diaDaOc = String(dataOc.getUTCDate()).padStart(2, '00');
         return {
           id: oc.id_ocorrencia,
           id_evento: oc.id_evento,
@@ -96,7 +98,6 @@ const TelaPrincipal = () => {
     }
   };
 
-  // ── Carrega perfil e agenda ao montar ────────────────────────
   useEffect(() => {
     const carregarPerfil = async () => {
       try {
@@ -111,7 +112,6 @@ const TelaPrincipal = () => {
     carregarAgendaDoBanco(diaAtivo, isHistorico);
   }, []);
 
-  // ── Recarrega quando muda o dia ativo ────────────────────────
   const mudarDiaAtivo = (dia) => {
     setDiaAtivo(dia);
     setEditandoIndex(null);
@@ -127,7 +127,6 @@ const TelaPrincipal = () => {
     carregarAgendaDoBanco(novoDia, novoModo);
   };
 
-  // ── Adicionar tarefa ─────────────────────────────────────────
   const adicionarNovaTarefa = async (evento) => {
     evento.preventDefault();
     try {
@@ -138,30 +137,35 @@ const TelaPrincipal = () => {
         tipo: 'GERAL',
         data_hora: '08:00',
         data_inicio: dataCompleta,
-        data_fim: dataCompleta, // mesmo dia = só 1 ocorrência
+        data_fim: dataCompleta,
         descricao: null,
       });
       setNovoTexto('');
       carregarAgendaDoBanco(diaAtivo, isHistorico);
     } catch (error) {
       console.error('Erro ao adicionar tarefa:', error.response?.data);
-      alert('Erro ao salvar. Verifique o console (F12).');
+      setModalErro({ open: true, msg: 'Não foi possível salvar a tarefa. Tente novamente.' });
     }
   };
 
-  // ── Excluir tarefa (deleta o template = deleta as ocorrências) ──
-  const removerTarefa = async (idEvento, idx) => {
-    if (!window.confirm('Deseja excluir esta tarefa?')) return;
+  // Abre o modal de confirmação em vez de window.confirm
+  const removerTarefa = (idEvento) => {
+    setModalConfirmacao({ open: true, idEvento });
+  };
+
+  // Executa a exclusão real após confirmação
+  const confirmarExclusao = async () => {
     try {
-      await deleteAgendaTemplate(idEvento);
+      await deleteAgendaTemplate(modalConfirmacao.idEvento);
+      setModalConfirmacao({ open: false, idEvento: null });
       carregarAgendaDoBanco(diaAtivo, isHistorico);
     } catch (error) {
       console.error('Erro ao excluir tarefa:', error.response?.data);
-      alert('Erro ao excluir. Verifique o console (F12).');
+      setModalConfirmacao({ open: false, idEvento: null });
+      setModalErro({ open: true, msg: 'Não foi possível excluir a tarefa. Tente novamente.' });
     }
   };
 
-  // ── Alternar status ───────────────────────────────────────────
   const alternarStatusTarefa = async (idOcorrencia, statusAtual) => {
     if (!idOcorrencia) return;
     try {
@@ -172,7 +176,6 @@ const TelaPrincipal = () => {
     }
   };
 
-  // ── Edição local ──────────────────────────────────────────────
   const iniciarEdicao = (idx, textoAtual) => {
     setEditandoIndex(idx);
     setTextoEditando(textoAtual);
@@ -192,9 +195,13 @@ const TelaPrincipal = () => {
     setTextoEditando('');
   };
 
-  // ── Outros ───────────────────────────────────────────────────
+  // Abre modal de emergência em vez de alert
   const dispararEmergencia = () => {
-    alert('ALERTA DE EMERGÊNCIA ACIONADO\n\n1. Notificação enviada para seus contatos de confiança cadastrados.\n2. Abrindo o discador para ligar para a Emergência 192/193');
+    setModalEmergencia(true);
+  };
+
+  const confirmarEmergencia = () => {
+    setModalEmergencia(false);
     window.location.href = 'tel:192';
   };
 
@@ -204,7 +211,6 @@ const TelaPrincipal = () => {
     window.location.href = '/';
   };
 
-  // ── Render ────────────────────────────────────────────────────
   return (
     <div className="pagina-principal">
       <div className="menu-topo">
@@ -300,11 +306,10 @@ const TelaPrincipal = () => {
                               )}
                               <span className="tag-dia">Dia {tarefa.dia}</span>
                             </div>
-
                             {!isHistorico && (
                               <div className="item-acoes">
                                 <button className="btn-editar" type="button" onClick={() => iniciarEdicao(index, tarefa.texto)} title="Editar">✏️</button>
-                                <button className="btn-deletar" type="button" onClick={() => removerTarefa(tarefa.id_evento, index)} title="Excluir">🗑️</button>
+                                <button className="btn-deletar" type="button" onClick={() => removerTarefa(tarefa.id_evento)} title="Excluir">🗑️</button>
                               </div>
                             )}
                           </>
@@ -312,7 +317,6 @@ const TelaPrincipal = () => {
                       </div>
                     );
                   })}
-
                   {listaTarefas.length === 0 && (
                     <p className="msg-lista-vazia">Nenhum registro encontrado para este dia.</p>
                   )}
@@ -325,6 +329,47 @@ const TelaPrincipal = () => {
         {tela === 'sinais' && <SinaisVitais />}
         {tela === 'contatos' && <Contatos />}
       </div>
+
+      {/* ── Modais ── */}
+      <Modal
+        isOpen={modalConfirmacao.open}
+        onClose={() => setModalConfirmacao({ open: false, idEvento: null })}
+        title="Excluir tarefa"
+        footer={
+          <>
+            <button className="modal-btn-cancelar" onClick={() => setModalConfirmacao({ open: false, idEvento: null })}>Cancelar</button>
+            <button className="modal-btn-perigo" onClick={confirmarExclusao}>Excluir</button>
+          </>
+        }
+      >
+        <p>Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.</p>
+      </Modal>
+
+      <Modal
+        isOpen={modalEmergencia}
+        onClose={() => setModalEmergencia(false)}
+        title="🚨 Alerta de Emergência"
+        footer={
+          <>
+            <button className="modal-btn-cancelar" onClick={() => setModalEmergencia(false)}>Cancelar</button>
+            <button className="modal-btn-perigo" onClick={confirmarEmergencia}>Ligar 192</button>
+          </>
+        }
+      >
+        <p>Isso irá notificar seus contatos de confiança e abrir o discador para ligar para a Emergência <strong>192</strong>.</p>
+        <p style={{ marginTop: 8 }}>Deseja continuar?</p>
+      </Modal>
+
+      <Modal
+        isOpen={modalErro.open}
+        onClose={() => setModalErro({ open: false, msg: '' })}
+        title="Ops, algo deu errado"
+        footer={
+          <button className="modal-btn-confirmar" onClick={() => setModalErro({ open: false, msg: '' })}>Entendi</button>
+        }
+      >
+        <p>{modalErro.msg}</p>
+      </Modal>
     </div>
   );
 };

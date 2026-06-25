@@ -1,0 +1,111 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(46, 38, 64, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.18s ease;
+}
+
+.modal-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px 32px 28px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 40px rgba(124, 92, 191, 0.18);
+  border: 1.5px solid #ddd8f0;
+  position: relative;
+  animation: slideUp 0.2s ease;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #a89dc0;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.modal-close:hover {
+  color: #7c5cbf;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #2e2640;
+  margin-bottom: 12px;
+  padding-right: 24px;
+}
+
+.modal-content {
+  font-size: 14px;
+  color: #6b5f87;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.modal-footer button {
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: none;
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.12s;
+}
+
+.modal-footer button:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+/* Botão primário (confirmar) */
+.modal-btn-confirmar {
+  background: #7c5cbf;
+  color: #fff;
+}
+
+/* Botão de perigo (excluir) */
+.modal-btn-perigo {
+  background: #e05c5c;
+  color: #fff;
+}
+
+/* Botão secundário (cancelar) */
+.modal-btn-cancelar {
+  background: transparent;
+  color: #6b5f87;
+  border: 1.5px solid #ddd8f0 !important;
+}
+
+.modal-btn-cancelar:hover {
+  border-color: #a687d8 !important;
+  color: #7c5cbf;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
