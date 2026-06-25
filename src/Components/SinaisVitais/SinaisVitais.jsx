@@ -4,6 +4,7 @@ import {
   Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import './SinaisVitais.css';
+import { sendHealthTelemetry } from '../Services/Api';
 
 const STORAGE_KEY = 'sinais_vitais_historico';
 
@@ -78,7 +79,7 @@ const SinaisVitais = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(historico));
   }, [historico]);
 
-  const salvarMedicoes = (evento) => {
+  const salvarMedicoes = async (evento) => {
     evento.preventDefault();
 
     const bpmFinal = novoBpm || bpm;
@@ -100,6 +101,13 @@ const SinaisVitais = () => {
     };
 
     setHistorico((h) => [...h.slice(-29), novoRegistro]);
+     try {
+  if (novoBpm) await sendHealthTelemetry({ type: 'BPM', value: Number(bpmFinal), isEmergency: Number(bpmFinal) > 100 });
+  if (novoSono) await sendHealthTelemetry({ type: 'SLEEP_STATUS', value: Number(sonoFinal), isEmergency: false });
+  if (novoEstresse) await sendHealthTelemetry({ type: 'STRESS_LEVEL', value: nivelEstresseParaNum[estresseFinal] || 2, isEmergency: estresseFinal === 'Alto' });
+} catch (e) {
+  console.warn('API indisponível, dado salvo só localmente.', e);
+}
     setNovoBpm('');
     setNovoSono('');
     setNovoEstresse('');
