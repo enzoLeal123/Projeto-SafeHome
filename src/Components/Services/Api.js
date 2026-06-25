@@ -103,4 +103,16 @@ export const getAgendaOcorrenciasPorData = async (userId, data) => {
 export const deleteContact = (idContato) =>
   API.delete(`/contatos/${idContato}`).then(r => r.data);
 
+// Histórico de pânico do usuário
+export const getPanicLogs = async (userId) => {
+  const response = await API.get(`/panic/logs/${userId}`);
+  return response.data;
+};
+ 
+// Acionar pânico com coordenadas opcionais
+export const triggerPanic = async (latitude, longitude) => {
+  const response = await API.post('/panic/trigger', { latitude, longitude, origem: 'MANUAL' });
+  return response.data;
+};
+
 export default API;

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './TelaPrincipal.css';
 import SinaisVitais from '../SinaisVitais/SinaisVitais.jsx';
-import Contatos from '../TelaContato/Contatos';
+import Contatos from "../TelaContato/Contatos.jsx";
+import HistoricoPanico from "../HistoricodePanico/HistoricodePanico.jsx";
 import Modal from '../Modal/Modal';
 import {
   getUserProfile,
@@ -10,6 +11,8 @@ import {
   createAgendaTemplate,
   updateAgendaOccurrenceStatus,
   deleteAgendaTemplate,
+  triggerPanic,
+  saveFcmToken,
 } from '../Services/Api';
 import API from '../Services/Api';
 
@@ -28,15 +31,32 @@ const TelaPrincipal = () => {
   const [novoTexto, setNovoTexto] = useState('');
   const [editandoIndex, setEditandoIndex] = useState(null);
   const [textoEditando, setTextoEditando] = useState('');
-
-  // Contatos para o modal de emergência
   const [contatosEmergencia, setContatosEmergencia] = useState([]);
+  const [acionandoPanico, setAcionandoPanico] = useState(false);
 
   const [modalConfirmacao, setModalConfirmacao] = useState({ open: false, idEvento: null });
   const [modalEmergencia, setModalEmergencia] = useState(false);
   const [modalErro, setModalErro] = useState({ open: false, msg: '' });
 
   const idUsuario = localStorage.getItem('usuario_id');
+
+  // ── Solicita permissão de notificação e salva FCM token ──
+  useEffect(() => {
+    const registrarFcmToken = async () => {
+      try {
+        if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') return;
+
+        // Se estiver usando Firebase no projeto, descomente e adapte:
+        // const token = await getMessagingToken();
+        // if (token) await saveFcmToken(token);
+      } catch (err) {
+        console.warn('Erro ao registrar FCM token:', err);
+      }
+    };
+    registrarFcmToken();
+  }, []);
 
   const gerarDiasDoCalendario = (modoHistorico) => {
     const dias = [];
@@ -79,9 +99,7 @@ const TelaPrincipal = () => {
       ]);
 
       const mapaTemplates = {};
-      if (Array.isArray(templates)) {
-        templates.forEach(t => { mapaTemplates[t.id_evento] = t; });
-      }
+      if (Array.isArray(templates)) templates.forEach(t => { mapaTemplates[t.id_evento] = t; });
 
       const tarefasNormalizadas = (Array.isArray(ocorrencias) ? ocorrencias : []).map(oc => {
         const template = mapaTemplates[oc.id_evento] || {};
@@ -96,7 +114,6 @@ const TelaPrincipal = () => {
           status: oc.status_concluido ? 'CONCLUIDA' : 'PENDENTE',
         };
       });
-
       setListaTarefas(tarefasNormalizadas);
     } catch (error) {
       console.error('Erro ao carregar agenda:', error);
@@ -116,7 +133,6 @@ const TelaPrincipal = () => {
       }
     };
 
-    // getContacts() sem parâmetro — igual ao seu Api.js
     const carregarContatosEmergencia = async () => {
       try {
         const dados = await getContacts();
@@ -131,18 +147,12 @@ const TelaPrincipal = () => {
     carregarAgendaDoBanco(diaAtivo, isHistorico);
   }, []);
 
-  const mudarDiaAtivo = (dia) => {
-    setDiaAtivo(dia);
-    setEditandoIndex(null);
-    carregarAgendaDoBanco(dia, isHistorico);
-  };
-
+  const mudarDiaAtivo = (dia) => { setDiaAtivo(dia); setEditandoIndex(null); carregarAgendaDoBanco(dia, isHistorico); };
   const alternarModoAgenda = () => {
     const novoModo = !isHistorico;
     const novosDias = gerarDiasDoCalendario(novoModo);
     const novoDia = novosDias[0];
-    setIsHistorico(novoModo);
-    setDiaAtivo(novoDia);
+    setIsHistorico(novoModo); setDiaAtivo(novoDia);
     carregarAgendaDoBanco(novoDia, novoModo);
   };
 
@@ -151,24 +161,17 @@ const TelaPrincipal = () => {
     try {
       const dataCompleta = diaParaDataCompleta(diaAtivo, isHistorico);
       await createAgendaTemplate({
-        id_paciente: Number(idUsuario),
-        titulo: novoTexto,
-        tipo: 'GERAL',
-        data_hora: '08:00',
-        data_inicio: dataCompleta,
-        data_fim: dataCompleta,
-        descricao: null,
+        id_paciente: Number(idUsuario), titulo: novoTexto, tipo: 'GERAL',
+        data_hora: '08:00', data_inicio: dataCompleta, data_fim: dataCompleta, descricao: null,
       });
       setNovoTexto('');
       carregarAgendaDoBanco(diaAtivo, isHistorico);
     } catch (error) {
-      console.error('Erro ao adicionar tarefa:', error.response?.data);
       setModalErro({ open: true, msg: 'Não foi possível salvar a tarefa. Tente novamente.' });
     }
   };
 
   const removerTarefa = (idEvento) => setModalConfirmacao({ open: true, idEvento });
-
   const confirmarExclusao = async () => {
     try {
       await deleteAgendaTemplate(modalConfirmacao.idEvento);
@@ -182,12 +185,8 @@ const TelaPrincipal = () => {
 
   const alternarStatusTarefa = async (idOcorrencia, statusAtual) => {
     if (!idOcorrencia) return;
-    try {
-      await updateAgendaOccurrenceStatus(idOcorrencia, statusAtual);
-      carregarAgendaDoBanco(diaAtivo, isHistorico);
-    } catch (error) {
-      console.error('Erro ao atualizar status:', error);
-    }
+    try { await updateAgendaOccurrenceStatus(idOcorrencia, statusAtual); carregarAgendaDoBanco(diaAtivo, isHistorico); }
+    catch (error) { console.error('Erro ao atualizar status:', error); }
   };
 
   const iniciarEdicao = (idx, textoAtual) => { setEditandoIndex(idx); setTextoEditando(textoAtual); };
@@ -198,18 +197,37 @@ const TelaPrincipal = () => {
   };
   const cancelarEdicao = () => { setEditandoIndex(null); setTextoEditando(''); };
 
-  // Abre WhatsApp com mensagem de alerta pré-escrita
+  // Abre WhatsApp com mensagem pré-escrita
   const abrirWhatsApp = (contato) => {
     const numero = formatarParaWhatsApp(contato.telefone);
     const msg = encodeURIComponent(
-      `🚨 ALERTA DE EMERGÊNCIA — SafeHome\n\nOlá, ${contato.nome}! ${nomeUsuario} ${sobrenomeUsuario} acionou o botão de emergência no aplicativo SafeHome e pode precisar de ajuda imediata.\n\nPor favor, entre em contato o quanto antes.`
+      `🚨 ALERTA DE EMERGÊNCIA — SafeHome\n\nOlá, ${contato.nome}! ${nomeUsuario} ${sobrenomeUsuario} acionou o botão de emergência e pode precisar de ajuda imediata.\n\nPor favor, entre em contato o quanto antes.`
     );
     window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
   };
 
-  const ligar192 = () => {
-    setModalEmergencia(false);
-    window.location.href = 'tel:192';
+  // Aciona pânico real na API + abre discador
+  const ligar192 = async () => {
+    setAcionandoPanico(true);
+    try {
+      // Tenta pegar localização do usuário
+      let latitude, longitude;
+      if (navigator.geolocation) {
+        await new Promise((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => { latitude = pos.coords.latitude; longitude = pos.coords.longitude; resolve(); },
+            () => resolve() // falha silenciosa, envia sem coords
+          );
+        });
+      }
+      await triggerPanic(latitude, longitude);
+    } catch (err) {
+      console.error('Erro ao registrar pânico na API:', err);
+    } finally {
+      setAcionandoPanico(false);
+      setModalEmergencia(false);
+      window.location.href = 'tel:192';
+    }
   };
 
   const deslogar = () => {
@@ -223,9 +241,10 @@ const TelaPrincipal = () => {
       <div className="menu-topo">
         <div className="titulo-logo">💙 MindCare</div>
         <div className="botoes-menu">
-          <button className={tela === 'inicio' ? 'active' : ''} onClick={() => setTela('inicio')}>Início</button>
-          <button className={tela === 'sinais' ? 'active' : ''} onClick={() => setTela('sinais')}>Sinais Vitais</button>
+          <button className={tela === 'inicio'   ? 'active' : ''} onClick={() => setTela('inicio')}>Início</button>
+          <button className={tela === 'sinais'   ? 'active' : ''} onClick={() => setTela('sinais')}>Sinais Vitais</button>
           <button className={tela === 'contatos' ? 'active' : ''} onClick={() => setTela('contatos')}>Contatos</button>
+          <button className={tela === 'panico'   ? 'active' : ''} onClick={() => setTela('panico')}>Histórico</button>
           <button className="btn-emergencia" onClick={() => setModalEmergencia(true)}>Emergência</button>
         </div>
         <button className="btn-sair" onClick={deslogar}>Sair</button>
@@ -254,22 +273,14 @@ const TelaPrincipal = () => {
               <hr />
               {!isHistorico ? (
                 <form onSubmit={adicionarNovaTarefa} className="form-adicionar">
-                  <input
-                    type="text"
-                    placeholder="Ex: Tomar medicação (08:00)"
-                    value={novoTexto}
-                    onChange={(e) => setNovoTexto(e.target.value)}
-                    required
-                  />
+                  <input type="text" placeholder="Ex: Tomar medicação (08:00)" value={novoTexto} onChange={(e) => setNovoTexto(e.target.value)} required />
                   <button type="submit">Adicionar</button>
                 </form>
               ) : (
                 <p className="msg-modo-leitura">Modo leitura: Não é possível adicionar novas tarefas em dias passados.</p>
               )}
 
-              {carregando ? (
-                <p className="msg-lista-vazia">Carregando...</p>
-              ) : (
+              {carregando ? <p className="msg-lista-vazia">Carregando...</p> : (
                 <div className="lista-itens-agenda">
                   {listaTarefas.map((tarefa, index) => {
                     const estaEditando = editandoIndex === index;
@@ -277,17 +288,10 @@ const TelaPrincipal = () => {
                       <div key={tarefa.id || index} className={`item-agenda ${estaEditando ? 'item-editando' : ''}`}>
                         {estaEditando ? (
                           <div className="edicao-inline">
-                            <input
-                              className="input-edicao"
-                              type="text"
-                              value={textoEditando}
+                            <input className="input-edicao" type="text" value={textoEditando}
                               onChange={(e) => setTextoEditando(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') salvarEdicao(index);
-                                if (e.key === 'Escape') cancelarEdicao();
-                              }}
-                              autoFocus
-                            />
+                              onKeyDown={(e) => { if (e.key === 'Enter') salvarEdicao(index); if (e.key === 'Escape') cancelarEdicao(); }}
+                              autoFocus />
                             <div className="edicao-acoes">
                               <button className="btn-salvar-edicao" type="button" onClick={() => salvarEdicao(index)}>✓ Salvar</button>
                               <button className="btn-cancelar-edicao" type="button" onClick={cancelarEdicao}>✕ Cancelar</button>
@@ -296,18 +300,9 @@ const TelaPrincipal = () => {
                         ) : (
                           <>
                             <div className="item-conteudo">
-                              <input
-                                type="checkbox"
-                                checked={tarefa.status === 'CONCLUIDA'}
-                                onChange={() => alternarStatusTarefa(tarefa.id, tarefa.status)}
-                                disabled={isHistorico}
-                              />
-                              <span className={`tarefa-texto ${isHistorico || tarefa.status === 'CONCLUIDA' ? 'historico' : ''}`}>
-                                {tarefa.texto}
-                              </span>
-                              {tarefa.tipo && tarefa.tipo !== 'GERAL' && (
-                                <span className="tag-tipo">{tarefa.tipo}</span>
-                              )}
+                              <input type="checkbox" checked={tarefa.status === 'CONCLUIDA'} onChange={() => alternarStatusTarefa(tarefa.id, tarefa.status)} disabled={isHistorico} />
+                              <span className={`tarefa-texto ${isHistorico || tarefa.status === 'CONCLUIDA' ? 'historico' : ''}`}>{tarefa.texto}</span>
+                              {tarefa.tipo && tarefa.tipo !== 'GERAL' && <span className="tag-tipo">{tarefa.tipo}</span>}
                               <span className="tag-dia">Dia {tarefa.dia}</span>
                             </div>
                             {!isHistorico && (
@@ -321,58 +316,47 @@ const TelaPrincipal = () => {
                       </div>
                     );
                   })}
-                  {listaTarefas.length === 0 && (
-                    <p className="msg-lista-vazia">Nenhum registro encontrado para este dia.</p>
-                  )}
+                  {listaTarefas.length === 0 && <p className="msg-lista-vazia">Nenhum registro encontrado para este dia.</p>}
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {tela === 'sinais' && <SinaisVitais />}
+        {tela === 'sinais'   && <SinaisVitais />}
         {tela === 'contatos' && <Contatos />}
+        {tela === 'panico'   && <HistoricoPanico />}
       </div>
 
       {/* ── Modal: Excluir tarefa ── */}
-      <Modal
-        isOpen={modalConfirmacao.open}
-        onClose={() => setModalConfirmacao({ open: false, idEvento: null })}
+      <Modal isOpen={modalConfirmacao.open} onClose={() => setModalConfirmacao({ open: false, idEvento: null })}
         title="Excluir tarefa"
-        footer={
-          <>
-            <button className="modal-btn-cancelar" onClick={() => setModalConfirmacao({ open: false, idEvento: null })}>Cancelar</button>
-            <button className="modal-btn-perigo" onClick={confirmarExclusao}>Excluir</button>
-          </>
-        }
-      >
+        footer={<>
+          <button className="modal-btn-cancelar" onClick={() => setModalConfirmacao({ open: false, idEvento: null })}>Cancelar</button>
+          <button className="modal-btn-perigo" onClick={confirmarExclusao}>Excluir</button>
+        </>}>
         <p>Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.</p>
       </Modal>
 
       {/* ── Modal: Emergência com WhatsApp ── */}
-      <Modal
-        isOpen={modalEmergencia}
-        onClose={() => setModalEmergencia(false)}
+      <Modal isOpen={modalEmergencia} onClose={() => setModalEmergencia(false)}
         title="🚨 Alerta de Emergência"
-        footer={
-          <>
-            <button className="modal-btn-cancelar" onClick={() => setModalEmergencia(false)}>Cancelar</button>
-            <button className="modal-btn-perigo" onClick={ligar192}>📞 Ligar 192</button>
-          </>
-        }
-      >
+        footer={<>
+          <button className="modal-btn-cancelar" onClick={() => setModalEmergencia(false)}>Cancelar</button>
+          <button className="modal-btn-perigo" onClick={ligar192} disabled={acionandoPanico}>
+            {acionandoPanico ? 'Registrando...' : '📞 Ligar 192'}
+          </button>
+        </>}>
         <p>Acione rapidamente um contato de confiança ou ligue para o SAMU.</p>
+        <p style={{ fontSize: 12, color: '#a89dc0', marginTop: 4 }}>
+          Ao ligar 192, o alerta também será registrado no sistema e seus contatos serão notificados.
+        </p>
 
         {contatosEmergencia.length > 0 ? (
           <div className="emergencia-contatos">
             <p className="emergencia-label">Seus contatos de apoio:</p>
             {contatosEmergencia.map((contato) => (
-              <button
-                key={contato.id}
-                className="emergencia-btn-whatsapp"
-                type="button"
-                onClick={() => abrirWhatsApp(contato)}
-              >
+              <button key={contato.id} className="emergencia-btn-whatsapp" type="button" onClick={() => abrirWhatsApp(contato)}>
                 <span className="emergencia-whatsapp-icone">💬</span>
                 <span className="emergencia-whatsapp-info">
                   <strong>{contato.nome}</strong>
@@ -385,10 +369,8 @@ const TelaPrincipal = () => {
         ) : (
           <p className="emergencia-sem-contatos">
             Você ainda não tem contatos cadastrados.{' '}
-            <span
-              style={{ color: '#7c5cbf', cursor: 'pointer', textDecoration: 'underline' }}
-              onClick={() => { setModalEmergencia(false); setTela('contatos'); }}
-            >
+            <span style={{ color: '#7c5cbf', cursor: 'pointer', textDecoration: 'underline' }}
+              onClick={() => { setModalEmergencia(false); setTela('contatos'); }}>
               Adicionar agora
             </span>
           </p>
@@ -396,14 +378,9 @@ const TelaPrincipal = () => {
       </Modal>
 
       {/* ── Modal: Erro genérico ── */}
-      <Modal
-        isOpen={modalErro.open}
-        onClose={() => setModalErro({ open: false, msg: '' })}
+      <Modal isOpen={modalErro.open} onClose={() => setModalErro({ open: false, msg: '' })}
         title="Ops, algo deu errado"
-        footer={
-          <button className="modal-btn-confirmar" onClick={() => setModalErro({ open: false, msg: '' })}>Entendi</button>
-        }
-      >
+        footer={<button className="modal-btn-confirmar" onClick={() => setModalErro({ open: false, msg: '' })}>Entendi</button>}>
         <p>{modalErro.msg}</p>
       </Modal>
     </div>
